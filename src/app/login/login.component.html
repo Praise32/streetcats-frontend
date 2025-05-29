@@ -1,0 +1,11 @@
+<h1>Login</h1>
+<form>
+    <label for="usr">Username:</label>
+    <input id="usr" name="usr" [(ngModel)]="user" />
+    <label for="pwd">Password:</label>
+    <input id="pwd" name="pwd" type="password" [(ngModel)]="pass" />
+</form>
+<p>
+    Username is <strong>{{user}}</strong>;
+    Password is <strong>{{pass}}</strong>
+</p>
