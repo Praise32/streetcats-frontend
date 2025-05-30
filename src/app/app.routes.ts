@@ -1,17 +1,24 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login.component';
-import { PostComponent } from './post/post.component';
+import { HomeComponent } from './components/home/home.component'; // Assicurati sia standalone
+import { authGuard } from './guards/authorization.guard';
 
 export const routes: Routes = [
-    { // new Route in app.routes.ts
-        path: "login",
-        title: "Login",
-        component: LoginComponent
-    },
-    {
-        path: "post",
-        title: "Post",
-        component: PostComponent
-    }
-];
+  // Rotta per la Home Page
+  { path: '', component: HomeComponent },
 
+  // Rotte per l'autenticazione (lazy loading)
+  {
+    path: 'auth',
+    loadChildren: () => import('./components/auth/auth.routes').then(mod => mod.AUTH_ROUTES)
+  },
+
+  // Rotte per i gatti (lazy loading)
+  {
+    path: 'cats',
+    loadChildren: () => import('./components/cats/cats.routes').then(mod => mod.CATS_ROUTES)
+  },
+
+  // Rotta Wildcard per gestire URL non validi
+  { path: '**', redirectTo: '' } // Reindirizza qualsiasi cosa non riconosciuta alla Home
+];
