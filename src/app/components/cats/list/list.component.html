@@ -1,1 +1,20 @@
-<p>list works!</p>
+<div class="cat-list-container">
+  <h2>Tutti gli Avvistamenti di Gatti</h2>
+
+  <div *ngIf="isLoading()" class="loading-indicator">Caricamento avvistamenti...</div>
+  <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
+
+  <app-map [markers]="catMarkers()" [center]="[40.8518, 14.2681]" [zoom]="13"></app-map>
+
+  <div class="cat-cards-list">
+    <h3>Avvistamenti recenti</h3>
+    <div *ngIf="cats().length === 0 && !isLoading()">Nessun avvistamento trovato.</div>
+    <div *ngFor="let cat of cats()" class="cat-card">
+      <img [src]="cat.photo && cat.photo.length > 0 ? cat.photo[0].url : 'assets/placeholder-cat.png'" alt="Immagine Gatto" class="cat-card-image">
+      <h4>{{ cat.title }}</h4>
+      <p>{{ cat.description | slice:0:100 }}...</p>
+      <p>📍 {{ cat.city }}</p>
+      <a [routerLink]="['/cats', cat.id]">Vedi Dettagli</a>
+    </div>
+  </div>
+</div>
