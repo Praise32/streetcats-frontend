@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import { CatPost, CatPostInsertData, CatPostUpdateData, Comment, Photo } from '../interfaces/modules';
+import { CatPost, CatPostInsertData, CatPostUpdateData, Comment, Photos } from '../interfaces/modules';
 
 @Injectable({
   providedIn: 'root'
@@ -43,11 +43,11 @@ export class CatService {
   }
 
   // API per l'upload di foto al post
-  uploadPhoto(postId: number, file: File): Observable<Photo> {
+  uploadPhotos(postId: number, file: File): Observable<Photos> {
     const formData = new FormData();
     formData.append('imageFiles', file); // 'imageFiles' deve corrispondere al nome del campo Multer nel backend
 
-    return this.http.post<Photo>(`${this.baseUrl}/${postId}/upload`, formData).pipe(
+    return this.http.post<Photos>(`${this.baseUrl}/${postId}/upload`, formData).pipe(
       catchError(this.handleError)
     );
   }

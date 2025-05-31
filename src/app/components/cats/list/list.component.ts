@@ -39,8 +39,8 @@ export class CatListComponent implements OnInit {
           lat: parseFloat(cat.latitude || '0'),
           lng: parseFloat(cat.longitude || '0'),
           title: cat.title,
-          description: cat.description ? cat.description.substring(0, 50) + '...' : '',
-          imageUrl: cat.photo && cat.photo.length > 0 ? cat.photo[0].url : 'assets/cat-marker.png'
+          description: cat.description ? cat.description + '...' : '',
+          imageUrl: 'assets/MarkerCats.png',
         })));
         this.isLoading.set(false);
       },

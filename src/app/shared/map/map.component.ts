@@ -33,7 +33,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
 
   // Input Signals
-  markers = input<MapMarker[]>([]);
+  markers = input.required<MapMarker[]>();
   center = input<L.LatLngExpression>([40.8518, 14.2681]); // Coordinate di Napoli
   zoom = input<number>(13);
   enableClickForCoords = input<boolean>(false);
@@ -48,6 +48,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   constructor(private router: Router) {
     // Usiamo effect() per reagire ai cambiamenti degli input signals
     effect(() => {
+      // Accedi ai segnali per triggerare l'effect quando cambiano
+      const markers = this.markers();
+      const center = this.center();
+      const zoom = this.zoom();
       // Questo effect si attiva quando markers(), center() o zoom() cambiano
       // Esegue la logica che prima era in ngOnChanges per l'aggiornamento della mappa
       if (this.leafletMap) {
@@ -57,6 +61,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
 
     effect(() => {
+      const markers = this.markers();
+      const center = this.center();
+      const zoom = this.zoom();
       // Questo effect si attiva quando enableClickForCoords() cambia
       if (this.leafletMap) {
         if (this.enableClickForCoords()) {
@@ -121,24 +128,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     this.markers().forEach(markerData => {
       const customIcon = L.icon({
-        iconUrl: markerData.imageUrl || 'assets/cat-marker.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
+        iconUrl: markerData.imageUrl || 'assets/MarkerCats.png', // Percorso predefinito per l'icona
+        iconSize: [48, 48],
+        iconAnchor: [24, 48],
+        popupAnchor: [0, -48]
       });
 
       const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon });
 
-      marker.bindTooltip(`<b>${markerData.title}</b><br>${markerData.description || ''}`, {
-        permanent: false,
-        direction: 'top'
-      });
+      marker.bindTooltip(`<b>${markerData.title}</b><br>${(markerData.description || '').substring(0, 50)}${(markerData.description && markerData.description.length > 50) ? '...' : ''}`,
+        {
+          permanent: false,
+          direction: 'top'
+        });
 
       marker.bindPopup(() => {
         const div = L.DomUtil.create('div');
         div.innerHTML = `
           <h3>${markerData.title}</h3>
-          <p>${markerData.description || ''}</p>
+          <p>${markerData.description?.substring(0, 256) || ''}</p>
           <button id="detail-button-${markerData.id}">Vedi Dettaglio</button>
         `;
 
@@ -159,7 +167,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  
+
   ngOnDestroy(): void {
     if (this.leafletMap) {
       this.leafletMap.off('click', this.handleMapClick, this);

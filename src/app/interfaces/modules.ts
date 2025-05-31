@@ -21,7 +21,7 @@ export interface Comment {
 }
 
 // Interfaccia per le foto
-export interface Photo {
+export interface Photos {
   id: number;
   url: string; // URL della foto caricata (da S3)
   filename: string; // Nome del file in S3 (per delete)
@@ -48,7 +48,7 @@ export interface CatPost {
   userId: number;
   // Relazioni popolate dal backend (se le API lo fanno)
   author?: User; // Chi ha inserito il post
-  photo?: Photo[]; // Array di foto (il tuo backend gestisce 1 foto per ora, ma lo schema è `many`)
+  photos?: Photos[]; // Array di foto (il tuo backend gestisce 1 foto per ora, ma lo schema è `many`)
   comments?: Comment[]; // Array di commenti
 }
 
