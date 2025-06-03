@@ -10,7 +10,7 @@
     <h3>Avvistamenti recenti</h3>
     <div *ngIf="cats().length === 0 && !isLoading()">Nessun avvistamento trovato.</div>
     <div *ngFor="let cat of cats()" class="cat-card">
-      <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.png'"
+      <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.jpg'"
         alt="Immagine Gatto" class="cat-card-image">
       <h4>{{ cat.title }}</h4>
       <p>{{ cat.description | slice:0:100 }}...</p>

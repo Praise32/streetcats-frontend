@@ -1,0 +1,144 @@
+.cat-detail-container {
+    max-width: 800px;
+    margin: 2.5rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+}
+
+h2 {
+    text-align: center;
+    color: #ff9800;
+    margin-bottom: 1.5rem;
+}
+
+.detail-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.cat-image-multi {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 0 8px 8px 0;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+    background: #eee;
+}
+
+.image-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    gap: 8px;
+}
+
+
+
+.map-detail {
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.markdown-content {
+    background: #f8f8f8;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.comments-list {
+    margin-top: 1rem;
+}
+
+.comment-item {
+    background: #f5f5f5;
+    border-radius: 7px;
+    padding: 0.7rem 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+.comment-author {
+    color: #ff9800;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+}
+
+.comment-text {
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.comment-date {
+    color: #888;
+    font-size: 0.92rem;
+}
+
+.add-comment-section {
+    margin-top: 2rem;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 1.2rem;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+}
+
+.add-comment-section textarea {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    resize: vertical;
+}
+
+.add-comment-section button {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-comment-section button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.add-comment-section button:hover:not(:disabled) {
+    background: #e65100;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.95rem;
+    margin-top: 0.2rem;
+}
+
+.alert {
+    margin: 1rem auto;
+    max-width: 400px;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .cat-detail-container {
+        padding: 1rem;
+    }
+
+    .cat-image {
+        width: 180px;
+        height: 180px;
+    }
+}

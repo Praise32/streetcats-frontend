@@ -1,1 +1,83 @@
-<p>form works!</p>
+<div class="cat-form-container">
+    <h2>{{ isEditMode() ? 'Modifica Avvistamento Gatto' : 'Nuovo Avvistamento Gatto' }}</h2>
+
+    <div *ngIf="isLoading()" class="loading-indicator">Caricamento...</div>
+    <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
+
+    <form [formGroup]="catForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="title">Titolo:</label>
+            <input type="text" id="title" formControlName="title">
+            <div *ngIf="catForm.get('title')?.invalid && (catForm.get('title')?.dirty || catForm.get('title')?.touched)"
+                class="error-message">
+                <span>Il titolo è obbligatorio.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Descrizione (supporta Markdown):</label>
+            <textarea id="description" formControlName="description" rows="5"></textarea>
+            <div *ngIf="catForm.get('description')?.value" class="markdown-preview">
+                <h4>Anteprima Descrizione:</h4>
+                <markdown [data]="catForm.get('description')?.value || ''" class="markdown-content"></markdown>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="imageFile">Carica Foto:</label>
+            <input type="file" id="imageFile" (change)="onFileSelected($event)" accept="image/*" multiple>
+            <span *ngIf="selectedFiles().length > 0">
+                File selezionati: {{ selectedFileNames }}
+            </span>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Indirizzo:</label>
+            <input type="text" id="address" formControlName="address">
+            <div *ngIf="catForm.get('address')?.invalid && (catForm.get('address')?.dirty || catForm.get('address')?.touched)"
+                class="error-message">
+                <span>L'indirizzo è obbligatorio.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="city">Città:</label>
+            <input type="text" id="city" formControlName="city">
+            <div *ngIf="catForm.get('city')?.invalid && (catForm.get('city')?.dirty || catForm.get('city')?.touched)"
+                class="error-message">
+                <span>La città è obbligatoria.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cap">CAP:</label>
+            <input type="text" id="cap" formControlName="cap">
+            <div *ngIf="catForm.get('cap')?.invalid && (catForm.get('cap')?.dirty || catForm.get('cap')?.touched)"
+                class="error-message">
+                <span *ngIf="catForm.get('cap')?.errors?.['required']">Il CAP è obbligatorio.</span>
+                <span *ngIf="catForm.get('cap')?.errors?.['pattern']">Il CAP deve essere di 5 cifre.</span>
+            </div>
+        </div>
+
+        <div class="form-group map-picker">
+            <label>Seleziona Posizione sulla Mappa:</label>
+            <div class="coords-display" *ngIf="selectedCoords()">
+                Latitudine: {{ selectedCoords()!.lat | number:'1.5-5' }}, Longitudine: {{ selectedCoords()!.lng |
+                number:'1.5-5' }}
+            </div>
+            <app-map
+                [markers]="selectedCoords() ? [{ id: 1, lat: selectedCoords()!.lat, lng: selectedCoords()!.lng, title: 'Posizione selezionata' }] : []"
+                [center]="selectedCoords() || [40.8518, 14.2681]" [zoom]="selectedCoords() ? 15 : 13"
+                [enableClickForCoords]="true" (mapClickCoords)="onMapClick($event)">
+            </app-map>
+            <div *ngIf="catForm.get('latitude')?.invalid && (catForm.get('latitude')?.dirty || catForm.get('latitude')?.touched)"
+                class="error-message">
+                <span>La posizione sulla mappa è obbligatoria.</span>
+            </div>
+        </div>
+
+        <button type="submit" [disabled]="catForm.invalid || isLoading()">
+            {{ isEditMode() ? 'Salva Modifiche' : 'Crea Avvistamento' }}
+        </button>
+    </form>
+</div>

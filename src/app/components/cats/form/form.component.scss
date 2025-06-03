@@ -1,0 +1,121 @@
+.cat-form-container {
+    max-width: 600px;
+    margin: 2.5rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+}
+
+h2 {
+    text-align: center;
+    color: #ff9800;
+    margin-bottom: 1.5rem;
+}
+
+.loading-indicator {
+    text-align: center;
+    color: #888;
+    font-size: 1.1rem;
+    margin: 2rem 0;
+}
+
+.alert {
+    margin: 1rem auto;
+    max-width: 400px;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+label {
+    font-weight: 500;
+    color: #333;
+}
+
+input[type="text"],
+input[type="file"],
+textarea {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    background: #fafafa;
+    transition: border 0.2s;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    border-color: #ff9800;
+    outline: none;
+}
+
+input[type="file"] {
+    padding: 0.3rem 0;
+    background: none;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 0.95rem;
+}
+
+button[type="submit"] {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 1.2rem;
+    align-self: center;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+    background: #e65100;
+}
+
+.markdown-preview {
+    margin-top: 0.7rem;
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.markdown-content {
+    font-size: 1.05rem;
+}
+
+.map-picker {
+    margin-top: 1.2rem;
+}
+
+.coords-display {
+    font-size: 0.97rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 700px) {
+    .cat-form-container {
+        padding: 1rem;
+    }
+}

@@ -3,11 +3,13 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
-
+import { importProvidersFrom } from '@angular/core';
+import { MarkdownModule } from 'ngx-markdown';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    ...appConfig.providers, // Mantieni i provider di default
-    provideHttpClient(withInterceptors([authInterceptor])) // Registra il tuo intercettore
+    ...appConfig.providers,
+    provideHttpClient(withInterceptors([authInterceptor])),
+    importProvidersFrom(MarkdownModule.forRoot())
   ]
 }).catch((err) => console.error(err));

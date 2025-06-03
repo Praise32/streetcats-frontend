@@ -1,10 +1,12 @@
-<nav>
-  <h1>STREETCATS</h1>
-  <ul>
-    <li><a routerLink="/">Home</a></li>
-    <li><a routerLink="/cats">Avvistamenti</a></li>
-    <li><a routerLink="/cats/new">Nuovo Avvistamento</a></li>
-    <li><a routerLink="/auth/login">Login</a></li>
-    <li><a routerLink="/auth/register">Registrati</a></li>
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/cats">🐾 STREETCATS</a>
+  </div>
+  <ul class="navbar-links">
+    <li><a routerLink="/cats" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Avvistamenti</a>
+    </li>
+    <li><a routerLink="/cats/new" routerLinkActive="active">Nuovo Avvistamento</a></li>
+    <li><a routerLink="/auth/login" routerLinkActive="active">Login</a></li>
+    <li><a routerLink="/auth/register" routerLinkActive="active">Registrati</a></li>
   </ul>
 </nav>

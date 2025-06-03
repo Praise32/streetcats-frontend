@@ -128,10 +128,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     this.markers().forEach(markerData => {
       const customIcon = L.icon({
-        iconUrl: markerData.imageUrl || 'assets/MarkerCats.png', // Percorso predefinito per l'icona
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -48]
+        iconUrl: markerData.imageUrl || 'assets/MarkerCats.png',
+        shadowUrl: '',
+        iconSize: [72, 72],
+        iconAnchor: [36, 72],
+        popupAnchor: [0, -72]
       });
 
       const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon });

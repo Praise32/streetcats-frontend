@@ -43,11 +43,8 @@ export class CatService {
   }
 
   // API per l'upload di foto al post
-  uploadPhotos(postId: number, file: File): Observable<Photos> {
-    const formData = new FormData();
-    formData.append('imageFiles', file); // 'imageFiles' deve corrispondere al nome del campo Multer nel backend
-
-    return this.http.post<Photos>(`${this.baseUrl}/${postId}/upload`, formData).pipe(
+  uploadPhotos(postId: number, formData: FormData): Observable<Photos[]> {
+    return this.http.post<Photos[]>(`${this.baseUrl}/${postId}/upload`, formData).pipe(
       catchError(this.handleError)
     );
   }

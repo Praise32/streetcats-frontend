@@ -1,1 +1,69 @@
-<p>detail works!</p>
+<div class="cat-detail-container">
+    <div *ngIf="isLoading()" class="loading-indicator">Caricamento dettagli gatto...</div>
+    <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
+
+    <div *ngIf="catPost()">
+        <h2>{{ catPost()!.title }}</h2>
+
+        <div class="detail-section">
+            <h3>Dettagli Avvistamento</h3>
+            <div class="image-wrapper" *ngIf="catPost() as post">
+                <ng-container *ngIf="!!post.photos && post.photos.length > 0; else noPhoto">
+                    <ng-container *ngFor="let photo of post.photos | slice:0:5">
+                        <img [src]="photo.url" alt="Foto gatto" class="cat-image-multi">
+                    </ng-container>
+                </ng-container>
+            </div>
+            <ng-template #noPhoto>
+                <div class="image-wrapper">
+                    <img src="assets/placeholder-cat.jpg" alt="Nessuna foto" class="cat-image-multi">
+                </div>
+            </ng-template>
+            <p><strong>Data di Inserimento:</strong> {{ formatDate(catPost()!.createdAt) }}</p>
+            <p><strong>Autore:</strong> {{ catPost()!.author?.name || catPost()!.author?.email || 'Sconosciuto' }}</p>
+            <p><strong>Posizione:</strong> {{ catPost()!.address }}, {{ catPost()!.city }} (CAP: {{ catPost()!.cap }})
+            </p>
+
+            <div class="map-detail">
+                <app-map [markers]="mapMarkers()" [center]="mapCenter()" [zoom]="mapZoom()"></app-map>
+            </div>
+
+            <h4>Descrizione:</h4>
+            <markdown [data]="catPost()!.description || ''" class="markdown-content"></markdown>
+        </div>
+
+        <hr>
+
+        <div class="detail-section">
+            <h3>Commenti</h3>
+            <div *ngIf="catPost()!.comments && catPost()!.comments!.length > 0; else noComments" class="comments-list">
+                <div *ngFor="let comment of catPost()!.comments" class="comment-item">
+                    <p class="comment-author"><strong>{{ comment.author?.name || comment.author?.email || 'Utente
+                            Sconosciuto' }}:</strong></p>
+                    <p class="comment-text">{{ comment.text }}</p>
+                    <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
+                </div>
+            </div>
+            <ng-template #noComments>
+                <p>Nessun commento per questo avvistamento.</p>
+            </ng-template>
+
+            <div *ngIf="isLoggedIn()" class="add-comment-section">
+                <h4>Lascia un Commento</h4>
+                <form [formGroup]="commentForm" (ngSubmit)="onCommentSubmit()">
+                    <div class="form-group">
+                        <textarea formControlName="text" placeholder="Il tuo commento..." rows="3"></textarea>
+                        <div *ngIf="commentForm.get('text')?.invalid && (commentForm.get('text')?.dirty || commentForm.get('text')?.touched)"
+                            class="error-message">
+                            <span>Il commento non può essere vuoto.</span>
+                        </div>
+                    </div>
+                    <button type="submit" [disabled]="!commentForm.valid">Invia Commento</button>
+                </form>
+            </div>
+            <div *ngIf="!isLoggedIn()" class="alert alert-info">
+                Effettua il <a routerLink="/auth/login">login</a> per lasciare un commento.
+            </div>
+        </div>
+    </div>
+</div>
