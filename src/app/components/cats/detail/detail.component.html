@@ -32,6 +32,11 @@
             <markdown [data]="catPost()!.description || ''" class="markdown-content"></markdown>
         </div>
 
+        <div *ngIf="isOwner" class="owner-actions">
+            <button class="edit-btn" [routerLink]="['/cats', catPost()!.id, 'edit']">Modifica</button>
+            <button class="delete-btn" (click)="onDeletePost()">Elimina</button>
+        </div>
+
         <hr>
 
         <div class="detail-section">
@@ -50,12 +55,25 @@
 
             <div *ngIf="isLoggedIn()" class="add-comment-section">
                 <h4>Lascia un Commento</h4>
+                <div class="markdown-toolbar">
+                    <button type="button" (click)="insertMarkdown('**', '**')"><b>B</b></button>
+                    <button type="button" (click)="insertMarkdown('_', '_')"><i>I</i></button>
+                    <button type="button" (click)="insertMarkdown('`', '`')">Code</button>
+                    <button type="button" (click)="insertMarkdown('> ', '')">Citazione</button>
+                    <button type="button" (click)="insertMarkdown('[', '](url)')">Link</button>
+                    <!-- Aggiungi altri bottoni se vuoi -->
+                </div>
                 <form [formGroup]="commentForm" (ngSubmit)="onCommentSubmit()">
                     <div class="form-group">
-                        <textarea formControlName="text" placeholder="Il tuo commento..." rows="3"></textarea>
+                        <textarea #commentArea formControlName="text" placeholder="Il tuo commento..."
+                            rows="3"></textarea>
                         <div *ngIf="commentForm.get('text')?.invalid && (commentForm.get('text')?.dirty || commentForm.get('text')?.touched)"
                             class="error-message">
                             <span>Il commento non può essere vuoto.</span>
+                        </div>
+                        <div *ngIf="commentForm.get('text')?.value" class="markdown-preview">
+                            <h5>Anteprima:</h5>
+                            <markdown [data]="commentForm.get('text')?.value || ''" class="markdown-content"></markdown>
                         </div>
                     </div>
                     <button type="submit" [disabled]="!commentForm.valid">Invia Commento</button>

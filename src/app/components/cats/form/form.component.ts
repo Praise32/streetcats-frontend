@@ -27,6 +27,7 @@ export class CatFormComponent implements OnInit {
   errorMessage = signal<string | null>(null);
   isLoading = signal(false);
   selectedFiles = signal<File[]>([]);
+  imagePreviews = signal<string[]>([]);
 
   // Signal per le coordinate selezionate sulla mappa
   selectedCoords = signal<{ lat: number, lng: number } | null>(null);
@@ -91,10 +92,42 @@ export class CatFormComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFiles.set(Array.from(input.files));
+      const files = Array.from(input.files).filter(file => file.type.startsWith('image/'));
+      this.selectedFiles.set(files);
+
+      // Genera le anteprime
+      const previews: string[] = [];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          previews.push(e.target.result);
+          // Aggiorna il signal solo quando tutte le anteprime sono pronte
+          if (previews.length === files.length) {
+            this.imagePreviews.set(previews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      if (files.length > 5) {
+        this.errorMessage.set('Puoi caricare al massimo 5 foto.');
+      } else {
+        this.errorMessage.set(null);
+      }
     } else {
       this.selectedFiles.set([]);
+      this.imagePreviews.set([]);
+      this.errorMessage.set(null);
     }
+  }
+
+  removeImage(index: number): void {
+    const files = [...this.selectedFiles()];
+    const previews = [...this.imagePreviews()];
+    files.splice(index, 1);
+    previews.splice(index, 1);
+    this.selectedFiles.set(files);
+    this.imagePreviews.set(previews);
   }
 
   onMapClick(coords: { lat: number, lng: number }): void {

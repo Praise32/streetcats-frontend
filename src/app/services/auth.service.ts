@@ -93,6 +93,23 @@ export class AuthService {
     console.log('User logged out.');
   }
 
+  getCurrentUser(): { id: number; name?: string; email?: string } | null {
+    const token = this._authToken();
+    if (!token) return null;
+    try {
+      // Decodifica il payload del JWT (base64)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Adatta i nomi dei campi a quelli che il tuo backend inserisce nel JWT!
+      return {
+        id: payload.userId || payload.id,
+        name: payload.name,
+        email: payload.email
+      };
+    } catch {
+      return null;
+    }
+  }
+
   private handleError(error: any): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
     if (error.error && error.error.message) {

@@ -4,7 +4,9 @@
     <div class="form-group">
       <label for="username">Nome Utente:</label>
       <input type="text" id="username" formControlName="username">
-      <div *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty || registerForm.get('username')?.touched)" class="error-message">
+      <div
+        *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty || registerForm.get('username')?.touched)"
+        class="error-message">
         <span *ngIf="registerForm.get('username')?.errors?.['required']">Nome utente è richiesto.</span>
       </div>
     </div>
@@ -12,7 +14,9 @@
     <div class="form-group">
       <label for="email">Email:</label>
       <input type="email" id="email" formControlName="email">
-      <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)" class="error-message">
+      <div
+        *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)"
+        class="error-message">
         <span *ngIf="registerForm.get('email')?.errors?.['required']">Email è richiesta.</span>
         <span *ngIf="registerForm.get('email')?.errors?.['email']">Inserisci un'email valida.</span>
       </div>
@@ -21,7 +25,9 @@
     <div class="form-group">
       <label for="phone">Numero di telefono:</label>
       <input type="text" id="phone" formControlName="phone">
-      <div *ngIf="registerForm.get('phone')?.invalid && (registerForm.get('phone')?.dirty || registerForm.get('phone')?.touched)" class="error-message">
+      <div
+        *ngIf="registerForm.get('phone')?.invalid && (registerForm.get('phone')?.dirty || registerForm.get('phone')?.touched)"
+        class="error-message">
         <span *ngIf="registerForm.get('phone')?.errors?.['required']">Il numero di telefono è richiesto.</span>
       </div>
     </div>
@@ -29,9 +35,12 @@
     <div class="form-group">
       <label for="password">Password:</label>
       <input type="password" id="password" formControlName="password">
-      <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)" class="error-message">
+      <div
+        *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)"
+        class="error-message">
         <span *ngIf="registerForm.get('password')?.errors?.['required']">Password è richiesta.</span>
-        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">La password deve essere di almeno 6 caratteri.</span>
+        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">La password deve essere di almeno 6
+          caratteri.</span>
       </div>
     </div>
 
@@ -40,5 +49,5 @@
 
   <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-  <p>Hai già un account? <a routerLink="/auth/login" >Accedi qui</a></p>
+  <p>Hai già un account? <a routerLink="/auth/login" routerLinkActive="active">Accedi qui</a></p>
 </div>

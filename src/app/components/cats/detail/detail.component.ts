@@ -1,13 +1,15 @@
 // src/app/cats/detail/cat-detail.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router'; // Importa ActivatedRoute e RouterLink
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // Importa ActivatedRoute e RouterLink
 import { CatService } from '../../../services/cat.service';
 import { CatPost, Comment } from '../../../interfaces/modules';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component';
 import { MarkdownModule } from 'ngx-markdown'; // Importa MarkdownModule
 import { AuthService } from '../../../services/auth.service'; // Per controllare lo stato di login
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ViewChild, ElementRef } from '@angular/core';
+
 
 
 @Component({
@@ -34,11 +36,15 @@ export class CatDetailComponent implements OnInit {
   commentForm: FormGroup;
   isLoggedIn: any;
 
+  @ViewChild('commentArea') commentArea!: ElementRef<HTMLTextAreaElement>;
+
+
 
   constructor(
     private route: ActivatedRoute,
     private catService: CatService,
-    private authService: AuthService // Inietta AuthService
+    private authService: AuthService, // Inietta AuthService
+    private router: Router
   ) {
     this.commentForm = new FormGroup({
       text: new FormControl('', Validators.required)
@@ -56,6 +62,21 @@ export class CatDetailComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  get isOwner(): boolean {
+    const post = this.catPost();
+    const user = this.authService.getCurrentUser?.(); // Assicurati che AuthService abbia questo metodo
+    return !!post && !!user && post.userId === user.id;
+  }
+
+  onDeletePost(): void {
+    if (confirm('Sei sicuro di voler eliminare questo avvistamento?')) {
+      this.catService.deleteCat(this.catPost()!.id).subscribe({
+        next: () => this.router.navigate(['/cats']),
+        error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del post.')
+      });
+    }
   }
 
   private loadCatDetail(id: number): void {
@@ -134,6 +155,23 @@ export class CatDetailComponent implements OnInit {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  insertMarkdown(before: string, after: string) {
+    const textarea = this.commentArea?.nativeElement;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = textarea.value;
+    const selected = value.substring(start, end);
+    const newValue = value.substring(0, start) + before + selected + after + value.substring(end);
+    textarea.value = newValue;
+    this.commentForm.get('text')?.setValue(newValue);
+    // Riposiziona il cursore
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + before.length + selected.length + after.length;
     });
   }
 }

@@ -25,10 +25,21 @@
 
         <div class="form-group">
             <label for="imageFile">Carica Foto:</label>
-            <input type="file" id="imageFile" (change)="onFileSelected($event)" accept="image/*" multiple>
+            <input type="file" id="imageFile" (change)="onFileSelected($event)" accept="image/*" multiple
+                [attr.max]="5" />
             <span *ngIf="selectedFiles().length > 0">
                 File selezionati: {{ selectedFileNames }}
             </span>
+            <div *ngIf="selectedFiles().length > 5" class="error-message">
+                Puoi caricare al massimo 5 foto. Rimuovi alcune immagini per continuare.
+            </div>
+        </div>
+
+        <div class="image-preview-list" *ngIf="imagePreviews().length > 0">
+            <div class="image-preview-item" *ngFor="let preview of imagePreviews(); let i = index">
+                <img [src]="preview" alt="Anteprima foto" class="image-preview-thumb">
+                <button type="button" class="remove-image-btn" (click)="removeImage(i)">✕</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -76,7 +87,7 @@
             </div>
         </div>
 
-        <button type="submit" [disabled]="catForm.invalid || isLoading()">
+        <button type="submit" [disabled]="catForm.invalid || isLoading() || selectedFiles().length > 5">
             {{ isEditMode() ? 'Salva Modifiche' : 'Crea Avvistamento' }}
         </button>
     </form>
