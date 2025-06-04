@@ -5,11 +5,12 @@ import { MapComponent, MapMarker } from '../../../shared/map/map.component'; // 
 import { CatService } from '../../../services/cat.service';
 import { CatPost } from '../../../interfaces/modules';
 import { RouterModule } from '@angular/router';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-cat-list',
   standalone: true,
-  imports: [CommonModule, MapComponent, RouterModule],
+  imports: [CommonModule, MapComponent, RouterModule, MarkdownModule],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })

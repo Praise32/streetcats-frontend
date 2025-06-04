@@ -1,14 +1,16 @@
 // src/app/cats/detail/cat-detail.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router'; // Importa ActivatedRoute e RouterLink
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router'; // Importa ActivatedRoute e RouterLink
 import { CatService } from '../../../services/cat.service';
-import { CatPost, Comment } from '../../../interfaces/modules';
+import { CommentService } from '../../../services/comments.service';
+import { CatPost, Comment, User } from '../../../interfaces/modules';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component';
 import { MarkdownModule } from 'ngx-markdown'; // Importa MarkdownModule
 import { AuthService } from '../../../services/auth.service'; // Per controllare lo stato di login
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ViewChild, ElementRef } from '@angular/core';
+import { QuillModule } from 'ngx-quill';
 
 
 
@@ -20,7 +22,9 @@ import { ViewChild, ElementRef } from '@angular/core';
     MapComponent,
     MarkdownModule, // Aggiungi MarkdownModule qui
     RouterLink,
-    ReactiveFormsModule // Per il form dei commenti
+    RouterLinkActive,
+    ReactiveFormsModule,
+    QuillModule // Per il form dei commenti
   ],
   templateUrl: './detail.component.html',
   styleUrl: './detail.component.scss'
@@ -43,8 +47,10 @@ export class CatDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private catService: CatService,
-    private authService: AuthService, // Inietta AuthService
+    public authService: AuthService, // Inietta AuthService
+    private commentService: CommentService,
     private router: Router
+
   ) {
     this.commentForm = new FormGroup({
       text: new FormControl('', Validators.required)
@@ -110,32 +116,32 @@ export class CatDetailComponent implements OnInit {
     });
   }
 
-  onCommentSubmit(): void {
-    if (this.commentForm.valid && this.catPost()) {
-      const postId = this.catPost()!.id;
-      const commentText = this.commentForm.get('text')!.value;
+onCommentSubmit(): void {
+  if (this.commentForm.valid && this.catPost()) {
+    const postId = this.catPost()!.id;
+    const commentText = this.commentForm.getRawValue().text;
+    console.log('Invio commento:', { postId, commentText }); // <-- DEBUG
 
-      this.catService.addComment(postId, commentText).subscribe({
-        next: (newComment) => {
-          // Aggiungi il nuovo commento alla lista dei commenti del post (aggiornando il signal)
-          this.catPost.update(currentPost => {
-            if (currentPost) {
-              const updatedComments = currentPost.comments ? [...currentPost.comments, newComment] : [newComment];
-              return { ...currentPost, comments: updatedComments };
-            }
-            return currentPost;
-          });
-          this.commentForm.reset(); // Resetta il form
-        },
-        error: (err) => {
-          this.errorMessage.set(err.message || 'Errore durante l\'aggiunta del commento.');
-          console.error('Errore aggiunta commento:', err);
-        }
-      });
-    } else {
-      this.errorMessage.set('Per favore, inserisci un commento valido.');
-    }
+    this.commentService.addComment(postId, commentText).subscribe({
+      next: (newComment: any) => {
+        this.catPost.update(currentPost => {
+          if (currentPost) {
+            const updatedComments = currentPost.comments ? [...currentPost.comments, newComment] : [newComment];
+            return { ...currentPost, comments: updatedComments };
+          }
+          return currentPost;
+        });
+        this.commentForm.reset(); // Resetta SOLO dopo aver inviato
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Errore durante l\'aggiunta del commento.');
+        console.error('Errore aggiunta commento:', err);
+      }
+    });
+  } else {
+    this.errorMessage.set('Per favore, inserisci un commento valido.');
   }
+}
 
   // Helper per ottenere l'URL della prima foto o un placeholder
   getCatImageUrl(): string {
@@ -174,4 +180,42 @@ export class CatDetailComponent implements OnInit {
       textarea.selectionStart = textarea.selectionEnd = start + before.length + selected.length + after.length;
     });
   }
+
+  modalImageUrl: string | null = null;
+
+openImageModal(url: string) {
+  this.modalImageUrl = url;
+}
+
+closeImageModal() {
+  this.modalImageUrl = null;
+}
+
+  onEditComment(comment: Comment) {
+    // Implementa la logica di modifica (es: apri un form inline)
+    console.log('Modifica commento', comment);
+  }
+
+onDeleteComment(comment: Comment) {
+  if (confirm('Vuoi davvero eliminare questo commento?')) {
+    this.commentService.deleteComment(comment.id).subscribe({
+      next: () => {
+        // Aggiorna la lista dei commenti senza ricaricare la pagina
+        this.catPost.update(currentPost => {
+          if (!currentPost) return currentPost;
+          return {
+            ...currentPost,
+            comments: currentPost.comments?.filter(c => c.id !== comment.id) || []
+          };
+        });
+      },
+      error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del commento.')
+    });
+  }
+}
+
+  get currentUser(): User | null {
+  return this.authService.getCurrentUser();
+}
+
 }

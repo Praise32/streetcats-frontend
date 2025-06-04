@@ -1,6 +1,25 @@
 @import "../node_modules/leaflet/dist/leaflet.css";
+@import "../node_modules/quill/dist/quill.snow.css";
 
 .leaflet-container {
   height: 100%;
   width: 100%;
+  position: relative; /* Leaflet di solito lo imposta, ma è bene essere espliciti */
+  z-index: 0;       /* <= AGGIUNGI QUESTA RIGA! (o z-index: 1; va bene lo stesso) */
+}
+
+.leaflet-popup-content h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #ff9800;
+}
+.leaflet-popup-content p, .leaflet-popup-content ul, .leaflet-popup-content ol {
+  margin: 0.3em 0;
+  font-size: 0.98rem;
+}
+
+body {
+  padding-top: 70px; // o quanto è alta la navbar
+  margin: 0;
+  background: #f6f6f6;
 }

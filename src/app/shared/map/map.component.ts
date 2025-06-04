@@ -12,6 +12,10 @@ import {
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Router } from '@angular/router';
+import { marked } from 'marked';
+import { DomSanitizer } from '@angular/platform-browser';
+
+
 
 export interface MapMarker {
   id: number;
@@ -45,7 +49,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectedMarkerLayer: L.Marker | null = null;
   private currentMarkers: L.Marker[] = [];
 
-  constructor(private router: Router) {
+constructor(private router: Router, private sanitizer: DomSanitizer) {
     // Usiamo effect() per reagire ai cambiamenti degli input signals
     effect(() => {
       // Accedi ai segnali per triggerare l'effect quando cambiano
@@ -115,8 +119,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const newMarker = L.marker([lat, lng]).addTo(this.leafletMap);
     this.selectedMarkerLayer = newMarker;
   }
-
-  private updateMarkers(): void {
+private updateMarkers(): void {
     if (!this.leafletMap) {
       return;
     }
@@ -137,29 +140,28 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
       const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon });
 
-      marker.bindTooltip(`<b>${markerData.title}</b><br>${(markerData.description || '').substring(0, 50)}${(markerData.description && markerData.description.length > 50) ? '...' : ''}`,
-        {
-          permanent: false,
-          direction: 'top'
-        });
+      // Converti markdown in HTML per tooltip e popup
+      const descriptionHtml = marked.parse(markerData.description || '') as string;
+      const safeDescriptionHtml = this.sanitizer.bypassSecurityTrustHtml(descriptionHtml);
+
+      marker.bindTooltip(
+        `<b>${markerData.title}</b><br>${descriptionHtml.substring(0, 100)}`,
+        { permanent: false, direction: 'top' }
+      );
 
       marker.bindPopup(() => {
         const div = L.DomUtil.create('div');
         div.innerHTML = `
           <h3>${markerData.title}</h3>
-          <p>${markerData.description?.substring(0, 256) || ''}</p>
+          <div>${descriptionHtml.substring(0, 256)}</div>
           <button id="detail-button-${markerData.id}">Vedi Dettaglio</button>
         `;
-
         const detailButton = div.querySelector(`#detail-button-${markerData.id}`) as HTMLElement;
-
-
-        if (detailButton) { // Il controllo di nullità è ancora importante!
+        if (detailButton) {
           L.DomEvent.on(detailButton, 'click', () => {
             this.router.navigate(['/cats', markerData.id]);
           });
         }
-
         return div;
       });
 

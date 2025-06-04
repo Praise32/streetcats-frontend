@@ -26,21 +26,26 @@ export class RegisterComponent {
     });
   }
 
-  onSubmit(): void {
-    this.errorMessage = null;
-    if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
-          this.router.navigate(['/cats']); // Reindirizza dopo la registrazione
-        },
-        error: (err) => {
+onSubmit(): void {
+  this.errorMessage = null;
+  if (this.registerForm.valid) {
+    this.authService.register(this.registerForm.value).subscribe({
+      next: (response) => {
+        console.log('Registration successful:', response);
+        this.router.navigate(['/cats']);
+      },
+      error: (err) => {
+        // Cerca la stringa dell'errore di email duplicata
+        if (err.message && err.message.includes('users_email_unique')) {
+          this.errorMessage = 'Questa email è già registrata. Prova a fare il login o usa un\'altra email.';
+        } else {
           this.errorMessage = err.message || 'Registration failed. Please try again.';
-          console.error('Registration error:', err);
         }
-      });
-    } else {
-      this.errorMessage = 'Please fill in all required fields correctly.';
-    }
+        console.error('Registration error:', err);
+      }
+    });
+  } else {
+    this.errorMessage = 'Please fill in all required fields correctly.';
   }
+}
 }

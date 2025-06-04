@@ -49,18 +49,6 @@ export class CatService {
     );
   }
 
-  // API per aggiungere un commento (se hai un endpoint dedicato sul backend)
-  // Dal tuo schema Drizzle, i commenti hanno userId e postId.
-  // Assumo che il tuo backend abbia un endpoint dedicato per i commenti,
-  // se non è così, dovrai crearlo. Ad esempio, /api/comments
-  // Per ora, lo metto qui, ma considera un `CommentService` separato se la logica cresce.
-  addComment(postId: number, text: string): Observable<Comment> {
-    // Il tuo backend aggiungerà userId in base al token JWT
-    return this.http.post<Comment>(`${this.baseUrl}/${postId}/comments`, { text }).pipe( // Assumendo /api/posts/:id/comments
-      catchError(this.handleError)
-    );
-  }
-
 
   private handleError(error: any): Observable<never> {
     let errorMessage = 'An unknown error occurred with cat data!';

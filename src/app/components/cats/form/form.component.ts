@@ -7,6 +7,9 @@ import { MapComponent } from '../../../shared/map/map.component';
 import { CatPost, CatPostInsertData } from '../../../interfaces/modules';
 import { MarkdownModule } from 'ngx-markdown'; // Per un'anteprima Markdown (se vuoi)
 import { Observable } from 'rxjs';
+import { QuillModule } from 'ngx-quill';
+import { GeocodingService } from '../../../services/revgeocoding.service'; // Se hai un servizio per la geocodifica
+
 
 @Component({
   selector: 'app-cat-form',
@@ -15,7 +18,8 @@ import { Observable } from 'rxjs';
     CommonModule,
     ReactiveFormsModule,
     MapComponent,
-    MarkdownModule // Utile per un'anteprima markdown in tempo reale
+    MarkdownModule,
+    QuillModule 
   ],
   templateUrl: './form.component.html',
   styleUrl: './form.component.scss'
@@ -36,7 +40,8 @@ export class CatFormComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private catService: CatService
+    private catService: CatService,
+    private geocodingService: GeocodingService // Se hai un servizio per la geocodifica
   ) {
     this.catForm = new FormGroup({
       title: new FormControl('', Validators.required),
@@ -136,6 +141,16 @@ export class CatFormComponent implements OnInit {
       latitude: coords.lat.toString(),
       longitude: coords.lng.toString()
     });
+
+      // Reverse geocoding
+  this.geocodingService.reverseGeocode(coords.lat, coords.lng).subscribe(data => {
+    this.catForm.patchValue({
+      address: data.address,
+      city: data.city,
+      cap: data.cap
+    });
+  });
+
     this.catForm.get('latitude')?.markAsDirty(); // Marca come modificato
     this.catForm.get('longitude')?.markAsDirty();
   }

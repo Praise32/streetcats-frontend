@@ -14,14 +14,24 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="description">Descrizione (supporta Markdown):</label>
-            <textarea id="description" formControlName="description" rows="5"></textarea>
-            <div *ngIf="catForm.get('description')?.value" class="markdown-preview">
-                <h4>Anteprima Descrizione:</h4>
-                <markdown [data]="catForm.get('description')?.value || ''" class="markdown-content"></markdown>
-            </div>
-        </div>
+<div class="form-group">
+  <label for="description">Descrizione:</label>
+  <quill-editor
+    formControlName="description"
+    theme="snow"
+    [placeholder]="'Scrivi la descrizione...'"
+    [styles]="{height: '180px'}"
+    [modules]="{
+      toolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'blockquote'],
+        ['clean']
+      ]
+    }"
+    class="quill-custom"
+  ></quill-editor>
+</div>
 
         <div class="form-group">
             <label for="imageFile">Carica Foto:</label>
@@ -42,34 +52,26 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="address">Indirizzo:</label>
-            <input type="text" id="address" formControlName="address">
-            <div *ngIf="catForm.get('address')?.invalid && (catForm.get('address')?.dirty || catForm.get('address')?.touched)"
-                class="error-message">
-                <span>L'indirizzo è obbligatorio.</span>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="city">Città:</label>
-            <input type="text" id="city" formControlName="city">
-            <div *ngIf="catForm.get('city')?.invalid && (catForm.get('city')?.dirty || catForm.get('city')?.touched)"
-                class="error-message">
-                <span>La città è obbligatoria.</span>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="cap">CAP:</label>
-            <input type="text" id="cap" formControlName="cap">
-            <div *ngIf="catForm.get('cap')?.invalid && (catForm.get('cap')?.dirty || catForm.get('cap')?.touched)"
-                class="error-message">
-                <span *ngIf="catForm.get('cap')?.errors?.['required']">Il CAP è obbligatorio.</span>
-                <span *ngIf="catForm.get('cap')?.errors?.['pattern']">Il CAP deve essere di 5 cifre.</span>
-            </div>
-        </div>
-
+<div class="form-group">
+  <label>Dati posizione (compilati automaticamente):</label>
+  <div class="auto-fields-summary styled-summary">
+    <div>
+      <span class="field-label">Indirizzo:</span>
+      <span class="field-value">{{ catForm.get('address')?.value || 'Non disponibile' }}</span>
+    </div>
+    <div>
+      <span class="field-label">Città:</span>
+      <span class="field-value">{{ catForm.get('city')?.value || 'Non disponibile' }}</span>
+    </div>
+    <div>
+      <span class="field-label">CAP:</span>
+      <span class="field-value">{{ catForm.get('cap')?.value || 'Non disponibile' }}</span>
+    </div>
+  </div>
+  <div *ngIf="!selectedCoords()" class="info-message">
+    <em>Seleziona una posizione sulla mappa per ottenere indirizzo, città e CAP.</em>
+  </div>
+</div>
         <div class="form-group map-picker">
             <label>Seleziona Posizione sulla Mappa:</label>
             <div class="coords-display" *ngIf="selectedCoords()">

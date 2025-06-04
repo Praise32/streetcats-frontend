@@ -13,8 +13,9 @@
       <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.jpg'"
         alt="Immagine Gatto" class="cat-card-image">
       <h4>{{ cat.title }}</h4>
-      <p>{{ cat.description | slice:0:100 }}...</p>
-      <p>📍 {{ cat.city }}</p>
+<p>
+  <markdown [data]="cat.description | slice:0:100"></markdown>
+</p>      <p>📍 {{ cat.city }}</p>
       <a [routerLink]="['/cats', cat.id]">Vedi Dettagli</a>
     </div>
   </div>
