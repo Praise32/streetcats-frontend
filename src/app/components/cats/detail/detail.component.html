@@ -12,36 +12,21 @@
     <div class="detail-section">
       <h3>Dettagli Avvistamento</h3>
       <div class="image-wrapper" *ngIf="catPost() as post">
-        <ng-container
-          *ngIf="!!post.photos && post.photos.length > 0; else noPhoto"
-        >
+        <ng-container *ngIf="!!post.photos && post.photos.length > 0; else noPhoto">
           <ng-container *ngFor="let photo of post.photos | slice : 0 : 5">
-            <img
-              [src]="photo.url"
-              alt="Foto gatto"
-              class="cat-image-multi"
-              (click)="openImageModal(photo.url)"
-              style="cursor: zoom-in"
-            />
+            <img [src]="photo.url" alt="Foto gatto" class="cat-image-multi" (click)="openImageModal(photo.url)"
+              style="cursor: zoom-in" />
           </ng-container>
         </ng-container>
       </div>
       <!-- Modal per fullscreen -->
-      <div
-        class="image-modal"
-        *ngIf="modalImageUrl"
-        (click)="closeImageModal()"
-      >
+      <div class="image-modal" *ngIf="modalImageUrl" (click)="closeImageModal()">
         <img [src]="modalImageUrl" alt="Foto ingrandita" />
         <span class="close-modal">&times;</span>
       </div>
       <ng-template #noPhoto>
         <div class="image-wrapper">
-          <img
-            src="assets/placeholder-cat.jpg"
-            alt="Nessuna foto"
-            class="cat-image-multi"
-          />
+          <img src="assets/placeholder-cat.jpg" alt="Nessuna foto" class="cat-image-multi" />
         </div>
       </ng-template>
       <p>
@@ -51,7 +36,7 @@
       <p>
         <strong>Autore:</strong>
         {{
-          catPost()!.author?.name || catPost()!.author?.email || "Sconosciuto"
+        catPost()!.author?.name || catPost()!.author?.email || "Sconosciuto"
         }}
       </p>
       <p>
@@ -60,18 +45,11 @@
       </p>
 
       <div class="map-detail">
-        <app-map
-          [markers]="mapMarkers()"
-          [center]="mapCenter()"
-          [zoom]="mapZoom()"
-        ></app-map>
+        <app-map [markers]="mapMarkers()" [center]="mapCenter()" [zoom]="mapZoom()"></app-map>
       </div>
 
       <h4>Descrizione:</h4>
-      <markdown
-        [data]="catPost()!.description || ''"
-        class="markdown-content"
-      ></markdown>
+      <markdown [data]="catPost()!.description || ''" class="markdown-content"></markdown>
     </div>
 
     <div *ngIf="isOwner" class="owner-actions">
@@ -85,42 +63,45 @@
 
     <div class="detail-section">
       <h3>Commenti</h3>
-      <div
-        *ngIf="
+      <div *ngIf="
           catPost()!.comments && catPost()!.comments!.length > 0;
           else noComments
-        "
-        class="comments-list"
-      >
+        " class="comments-list">
         <div *ngFor="let comment of catPost()!.comments" class="comment-item">
           <p class="comment-author">
-            <strong
-              >{{
-                comment.author?.name ||
-                  comment.author?.email ||
-                  "Utente Sconosciuto"
-              }}:</strong
-            >
+            <strong>{{ comment.author?.name || comment.author?.email || "Utente Sconosciuto" }}:</strong>
           </p>
-          <div class="comment-text" [innerHTML]="comment.text"></div>
-          <p class="comment-date">{{ formatDate(comment.createdAt) }}</p>
-
-<div
-  *ngIf="
-    isLoggedIn() &&
-    !!comment.author?.id &&
-    !!currentUser?.id &&
-    comment.author?.id === currentUser?.id
-  "
-  class="comment-actions"
->
-  <button class="edit-comment-btn" (click)="onEditComment(comment)">
-    Modifica
-  </button>
-  <button class="delete-comment-btn" (click)="onDeleteComment(comment)">
-    Elimina
-  </button>
-</div>
+          <div *ngIf="editingCommentId !== comment.id; else editForm">
+            <div class="comment-text" [innerHTML]="comment.text"></div>
+            <p class="comment-date">
+              Creato il {{ formatDate(comment.createdAt) }}
+              <span *ngIf="comment.updatedAt && comment.updatedAt !== comment.createdAt">
+                &middot; Modificato il {{ formatDate(comment.updatedAt) }}
+              </span>
+            </p>
+            <div
+              *ngIf="isLoggedIn() && !!comment.author?.id && !!currentUser?.id && comment.author?.id === currentUser?.id"
+              class="comment-actions">
+              <button class="edit-comment-btn" (click)="onEditComment(comment)">Modifica</button>
+              <button class="delete-comment-btn" (click)="onDeleteComment(comment)">Elimina</button>
+            </div>
+          </div>
+          <ng-template #editForm>
+            <form [formGroup]="editCommentForm" (ngSubmit)="onUpdateComment(comment)">
+              <quill-editor formControlName="text" theme="snow" [placeholder]="'Modifica il commento...'" [modules]="{
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'blockquote'],
+          ['clean']
+        ]
+      }" class="quill-custom" [styles]="{height: '120px'}"></quill-editor>
+              <div class="comment-actions">
+                <button type="submit" [disabled]="!editCommentForm.valid">Salva</button>
+                <button type="button" (click)="onCancelEditComment()">Annulla</button>
+              </div>
+            </form>
+          </ng-template>
         </div>
       </div>
       <ng-template #noComments>
@@ -130,28 +111,19 @@
       <div *ngIf="isLoggedIn()" class="add-comment-section">
         <form [formGroup]="commentForm" (ngSubmit)="onCommentSubmit()">
           <div class="form-group">
-            <quill-editor
-              formControlName="text"
-              theme="snow"
-              [placeholder]="'Scrivi un commento...'"
-              [modules]="{
+            <quill-editor formControlName="text" theme="snow" [placeholder]="'Scrivi un commento...'" [modules]="{
                 toolbar: [
                   ['bold', 'italic', 'underline', 'strike'],
                   [{ list: 'ordered' }, { list: 'bullet' }],
                   ['link', 'blockquote'],
                   ['clean']
                 ]
-              }"
-              class="quill-custom"
-            ></quill-editor>
-            <div
-              *ngIf="
+              }" class="quill-custom"></quill-editor>
+            <div *ngIf="
                 commentForm.get('text')?.invalid &&
                 (commentForm.get('text')?.dirty ||
                   commentForm.get('text')?.touched)
-              "
-              class="error-message"
-            >
+              " class="error-message">
               <span>Il commento non può essere vuoto.</span>
             </div>
           </div>
@@ -163,12 +135,10 @@
     </div>
 
     <div *ngIf="!isLoggedIn()" class="alert alert-info">
-      <span
-        >Effettua il
+      <span>Effettua il
         <a routerLink="/auth/login" routerLinkActive="active">login</a> o
         <a routerLink="/auth/register" routerLinkActive="active">registrati</a>
-        per lasciare un commento.</span
-      >
+        per lasciare un commento.</span>
     </div>
   </div>
 </div>

@@ -93,6 +93,28 @@ h3 {
     text-align: center;
 }
 
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 1rem 0;
+
+    button {
+        padding: 0.4rem 1.2rem;
+        border-radius: 6px;
+        border: 1px solid #aaa;
+        background: #f5f5f5;
+        cursor: pointer;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+}
+
+
 @media (max-width: 800px) {
     .cat-cards-list {
         gap: 1rem;

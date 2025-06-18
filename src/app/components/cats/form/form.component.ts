@@ -9,6 +9,7 @@ import { MarkdownModule } from 'ngx-markdown'; // Per un'anteprima Markdown (se 
 import { Observable } from 'rxjs';
 import { QuillModule } from 'ngx-quill';
 import { GeocodingService } from '../../../services/revgeocoding.service'; // Se hai un servizio per la geocodifica
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { GeocodingService } from '../../../services/revgeocoding.service'; // Se
     ReactiveFormsModule,
     MapComponent,
     MarkdownModule,
-    QuillModule 
+    QuillModule
   ],
   templateUrl: './form.component.html',
   styleUrl: './form.component.scss'
@@ -32,6 +33,9 @@ export class CatFormComponent implements OnInit {
   isLoading = signal(false);
   selectedFiles = signal<File[]>([]);
   imagePreviews = signal<string[]>([]);
+  addressSuggestions: any[] = [];
+
+
 
   // Signal per le coordinate selezionate sulla mappa
   selectedCoords = signal<{ lat: number, lng: number } | null>(null);
@@ -41,7 +45,8 @@ export class CatFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private catService: CatService,
-    private geocodingService: GeocodingService // Se hai un servizio per la geocodifica
+    private geocodingService: GeocodingService, // Se hai un servizio per la geocodifica
+    private http: HttpClient
   ) {
     this.catForm = new FormGroup({
       title: new FormControl('', Validators.required),
@@ -142,14 +147,14 @@ export class CatFormComponent implements OnInit {
       longitude: coords.lng.toString()
     });
 
-      // Reverse geocoding
-  this.geocodingService.reverseGeocode(coords.lat, coords.lng).subscribe(data => {
-    this.catForm.patchValue({
-      address: data.address,
-      city: data.city,
-      cap: data.cap
+    // Reverse geocoding
+    this.geocodingService.reverseGeocode(coords.lat, coords.lng).subscribe(data => {
+      this.catForm.patchValue({
+        address: data.address,
+        city: data.city,
+        cap: data.cap
+      });
     });
-  });
 
     this.catForm.get('latitude')?.markAsDirty(); // Marca come modificato
     this.catForm.get('longitude')?.markAsDirty();
@@ -218,5 +223,52 @@ export class CatFormComponent implements OnInit {
 
   get selectedFileNames(): string {
     return this.selectedFiles().map(f => f.name).join(', ');
+  }
+
+  onAddressInput(value: string) {
+    const city = this.catForm.get('city')?.value;
+    const cap = this.catForm.get('cap')?.value;
+    if (value.length > 3 && city) {
+      const query = encodeURIComponent(`${value}, ${cap ? cap + ' ' : ''}${city}, Italia`);
+      this.http.get<any[]>(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${query}&limit=5`)
+        .subscribe(results => {
+          this.addressSuggestions = results;
+        });
+    } else {
+      this.addressSuggestions = [];
+    }
+  }
+  selectAddressSuggestion(suggestion: any) {
+    this.catForm.patchValue({
+      address: suggestion.address.road + (suggestion.address.house_number ? ' ' + suggestion.address.house_number : ''),
+      city: suggestion.address.city || suggestion.address.town || suggestion.address.village || '',
+      cap: suggestion.address.postcode || ''
+    });
+    this.addressSuggestions = [];
+    // Puoi anche aggiornare le coordinate se vuoi:
+    this.catForm.patchValue({
+      latitude: suggestion.lat,
+      longitude: suggestion.lon
+    });
+    // Aggiorna la mappa se necessario
+    this.onAddressFieldsChange();
+  }
+
+  onAddressFieldsChange() {
+    const address = this.catForm.get('address')?.value;
+    const city = this.catForm.get('city')?.value;
+    const cap = this.catForm.get('cap')?.value;
+    if (address && city) {
+      const query = encodeURIComponent(`${address}, ${cap ? cap + ' ' : ''}${city}, Italia`);
+      this.http.get<any[]>(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`)
+        .subscribe(results => {
+          if (results && results.length > 0) {
+            const lat = parseFloat(results[0].lat);
+            const lng = parseFloat(results[0].lon);
+            this.selectedCoords.set({ lat, lng });
+            this.catForm.patchValue({ latitude: lat.toString(), longitude: lng.toString() });
+          }
+        });
+    }
   }
 }

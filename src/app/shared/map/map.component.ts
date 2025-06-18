@@ -24,6 +24,7 @@ export interface MapMarker {
   title: string;
   description?: string;
   imageUrl?: string;
+  showDetailButton?: boolean;
 }
 
 @Component({
@@ -49,7 +50,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectedMarkerLayer: L.Marker | null = null;
   private currentMarkers: L.Marker[] = [];
 
-constructor(private router: Router, private sanitizer: DomSanitizer) {
+  constructor(private router: Router, private sanitizer: DomSanitizer) {
     // Usiamo effect() per reagire ai cambiamenti degli input signals
     effect(() => {
       // Accedi ai segnali per triggerare l'effect quando cambiano
@@ -119,7 +120,7 @@ constructor(private router: Router, private sanitizer: DomSanitizer) {
     const newMarker = L.marker([lat, lng]).addTo(this.leafletMap);
     this.selectedMarkerLayer = newMarker;
   }
-private updateMarkers(): void {
+  private updateMarkers(): void {
     if (!this.leafletMap) {
       return;
     }
@@ -132,14 +133,15 @@ private updateMarkers(): void {
     this.markers().forEach(markerData => {
       const customIcon = L.icon({
         iconUrl: markerData.imageUrl || 'assets/MarkerCats.png',
-        shadowUrl: '',
+        shadowUrl: 'assets/marker-shadow.png',
         iconSize: [72, 72],
         iconAnchor: [36, 72],
-        popupAnchor: [0, -72]
+        popupAnchor: [0, -72],
+        shadowSize: [72, 40],
+        shadowAnchor: [25, 40]
       });
 
       const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon });
-
       // Converti markdown in HTML per tooltip e popup
       const descriptionHtml = marked.parse(markerData.description || '') as string;
       const safeDescriptionHtml = this.sanitizer.bypassSecurityTrustHtml(descriptionHtml);
@@ -152,15 +154,17 @@ private updateMarkers(): void {
       marker.bindPopup(() => {
         const div = L.DomUtil.create('div');
         div.innerHTML = `
-          <h3>${markerData.title}</h3>
-          <div>${descriptionHtml.substring(0, 256)}</div>
-          <button id="detail-button-${markerData.id}">Vedi Dettaglio</button>
-        `;
-        const detailButton = div.querySelector(`#detail-button-${markerData.id}`) as HTMLElement;
-        if (detailButton) {
-          L.DomEvent.on(detailButton, 'click', () => {
-            this.router.navigate(['/cats', markerData.id]);
-          });
+    <h3>${markerData.title}</h3>
+    <div>${descriptionHtml.substring(0, 256)}</div>
+    ${markerData.showDetailButton !== false ? `<button id="detail-button-${markerData.id}">Vedi Dettaglio</button>` : ''}
+  `;
+        if (markerData.showDetailButton !== false) {
+          const detailButton = div.querySelector(`#detail-button-${markerData.id}`) as HTMLElement;
+          if (detailButton) {
+            L.DomEvent.on(detailButton, 'click', () => {
+              this.router.navigate(['/cats', markerData.id]);
+            });
+          }
         }
         return div;
       });

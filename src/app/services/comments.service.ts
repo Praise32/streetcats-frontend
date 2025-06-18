@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import {Comment } from '../interfaces/modules';
+import { Comment } from '../interfaces/modules';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +13,18 @@ export class CommentService {
 
   addComment(postId: number, text: string): Observable<Comment> {
     // Il tuo backend aggiungerà userId in base al token JWT
-    return this.http.post<Comment>(`${this.baseUrl}`, { text, postId }).pipe( 
+    return this.http.post<Comment>(`${this.baseUrl}`, { text, postId }).pipe(
     );
   }
 
-    deleteComment(id: number): Observable<void> {
+  deleteComment(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateComment(id: number, text: string): Observable<Comment> {
+    return this.http.put<Comment>(`${this.baseUrl}/${id}`, { text }).pipe(
       catchError(this.handleError)
     );
   }

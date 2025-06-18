@@ -15,12 +15,12 @@ interface UserCredentials {
   email: string;
   password: string;
 }
-
-interface RegisterData extends UserCredentials {
-  username: string; // O qualsiasi altro campo di registrazione
-  // ...
+interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
 }
-
 @Injectable({
   providedIn: 'root' // Rende il servizio un singleton disponibile ovunque
 })

@@ -12,8 +12,8 @@ export class CatService {
 
   constructor(private http: HttpClient) { }
 
-  getAllCats(): Observable<CatPost[]> {
-    return this.http.get<CatPost[]>(this.baseUrl).pipe(
+  getAllCats(page = 1, limit = 6): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}?page=${page}&limit=${limit}`).pipe(
       catchError(this.handleError)
     );
   }

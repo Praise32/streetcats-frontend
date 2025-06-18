@@ -19,33 +19,33 @@ export class RegisterComponent {
 
   constructor(private authService: AuthService, private router: Router) {
     this.registerForm = new FormGroup({
-      username: new FormControl('', Validators.required), // Aggiungi altri campi se necessari
+      name: new FormControl('', Validators.required), // Aggiungi altri campi se necessari
       email: new FormControl('', [Validators.required, Validators.email]),
       phone: new FormControl('', Validators.required),
       password: new FormControl('', [Validators.required, Validators.minLength(6)])
     });
   }
 
-onSubmit(): void {
-  this.errorMessage = null;
-  if (this.registerForm.valid) {
-    this.authService.register(this.registerForm.value).subscribe({
-      next: (response) => {
-        console.log('Registration successful:', response);
-        this.router.navigate(['/cats']);
-      },
-      error: (err) => {
-        // Cerca la stringa dell'errore di email duplicata
-        if (err.message && err.message.includes('users_email_unique')) {
-          this.errorMessage = 'Questa email è già registrata. Prova a fare il login o usa un\'altra email.';
-        } else {
-          this.errorMessage = err.message || 'Registration failed. Please try again.';
+  onSubmit(): void {
+    this.errorMessage = null;
+    if (this.registerForm.valid) {
+      this.authService.register(this.registerForm.value).subscribe({
+        next: (response) => {
+          console.log('Registration successful:', response);
+          this.router.navigate(['/cats']);
+        },
+        error: (err) => {
+          // Cerca la stringa dell'errore di email duplicata
+          if (err.message && err.message.includes('users_email_unique')) {
+            this.errorMessage = 'Questa email è già registrata. Prova a fare il login o usa un\'altra email.';
+          } else {
+            this.errorMessage = err.message || 'Registration failed. Please try again.';
+          }
+          console.error('Registration error:', err);
         }
-        console.error('Registration error:', err);
-      }
-    });
-  } else {
-    this.errorMessage = 'Please fill in all required fields correctly.';
+      });
+    } else {
+      this.errorMessage = 'Please fill in all required fields correctly.';
+    }
   }
-}
 }

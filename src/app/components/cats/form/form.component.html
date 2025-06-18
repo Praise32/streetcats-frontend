@@ -1,96 +1,92 @@
 <div class="cat-form-container">
-    <h2>{{ isEditMode() ? 'Modifica Avvistamento Gatto' : 'Nuovo Avvistamento Gatto' }}</h2>
+  <h2>{{ isEditMode() ? 'Modifica Avvistamento Gatto' : 'Nuovo Avvistamento Gatto' }}</h2>
 
-    <div *ngIf="isLoading()" class="loading-indicator">Caricamento...</div>
-    <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
+  <div *ngIf="isLoading()" class="loading-indicator">Caricamento...</div>
+  <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
 
-    <form [formGroup]="catForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-            <label for="title">Titolo:</label>
-            <input type="text" id="title" formControlName="title">
-            <div *ngIf="catForm.get('title')?.invalid && (catForm.get('title')?.dirty || catForm.get('title')?.touched)"
-                class="error-message">
-                <span>Il titolo è obbligatorio.</span>
-            </div>
-        </div>
+  <form [formGroup]="catForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="title">Titolo:</label>
+      <input type="text" id="title" formControlName="title">
+      <div *ngIf="catForm.get('title')?.invalid && (catForm.get('title')?.dirty || catForm.get('title')?.touched)"
+        class="error-message">
+        <span>Il titolo è obbligatorio.</span>
+      </div>
+    </div>
 
-<div class="form-group">
-  <label for="description">Descrizione:</label>
-  <quill-editor
-    formControlName="description"
-    theme="snow"
-    [placeholder]="'Scrivi la descrizione...'"
-    [styles]="{height: '180px'}"
-    [modules]="{
+    <div class="form-group">
+      <label for="description">Descrizione:</label>
+      <quill-editor formControlName="description" theme="snow" [placeholder]="'Scrivi la descrizione...'"
+        [styles]="{height: '180px'}" [modules]="{
       toolbar: [
         ['bold', 'italic', 'underline', 'strike'],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         ['link', 'blockquote'],
         ['clean']
       ]
-    }"
-    class="quill-custom"
-  ></quill-editor>
-</div>
-
-        <div class="form-group">
-            <label for="imageFile">Carica Foto:</label>
-            <input type="file" id="imageFile" (change)="onFileSelected($event)" accept="image/*" multiple
-                [attr.max]="5" />
-            <span *ngIf="selectedFiles().length > 0">
-                File selezionati: {{ selectedFileNames }}
-            </span>
-            <div *ngIf="selectedFiles().length > 5" class="error-message">
-                Puoi caricare al massimo 5 foto. Rimuovi alcune immagini per continuare.
-            </div>
-        </div>
-
-        <div class="image-preview-list" *ngIf="imagePreviews().length > 0">
-            <div class="image-preview-item" *ngFor="let preview of imagePreviews(); let i = index">
-                <img [src]="preview" alt="Anteprima foto" class="image-preview-thumb">
-                <button type="button" class="remove-image-btn" (click)="removeImage(i)">✕</button>
-            </div>
-        </div>
-
-<div class="form-group">
-  <label>Dati posizione (compilati automaticamente):</label>
-  <div class="auto-fields-summary styled-summary">
-    <div>
-      <span class="field-label">Indirizzo:</span>
-      <span class="field-value">{{ catForm.get('address')?.value || 'Non disponibile' }}</span>
+    }" class="quill-custom"></quill-editor>
     </div>
-    <div>
-      <span class="field-label">Città:</span>
-      <span class="field-value">{{ catForm.get('city')?.value || 'Non disponibile' }}</span>
-    </div>
-    <div>
-      <span class="field-label">CAP:</span>
-      <span class="field-value">{{ catForm.get('cap')?.value || 'Non disponibile' }}</span>
-    </div>
-  </div>
-  <div *ngIf="!selectedCoords()" class="info-message">
-    <em>Seleziona una posizione sulla mappa per ottenere indirizzo, città e CAP.</em>
-  </div>
-</div>
-        <div class="form-group map-picker">
-            <label>Seleziona Posizione sulla Mappa:</label>
-            <div class="coords-display" *ngIf="selectedCoords()">
-                Latitudine: {{ selectedCoords()!.lat | number:'1.5-5' }}, Longitudine: {{ selectedCoords()!.lng |
-                number:'1.5-5' }}
-            </div>
-            <app-map
-                [markers]="selectedCoords() ? [{ id: 1, lat: selectedCoords()!.lat, lng: selectedCoords()!.lng, title: 'Posizione selezionata' }] : []"
-                [center]="selectedCoords() || [40.8518, 14.2681]" [zoom]="selectedCoords() ? 15 : 13"
-                [enableClickForCoords]="true" (mapClickCoords)="onMapClick($event)">
-            </app-map>
-            <div *ngIf="catForm.get('latitude')?.invalid && (catForm.get('latitude')?.dirty || catForm.get('latitude')?.touched)"
-                class="error-message">
-                <span>La posizione sulla mappa è obbligatoria.</span>
-            </div>
-        </div>
 
-        <button type="submit" [disabled]="catForm.invalid || isLoading() || selectedFiles().length > 5">
-            {{ isEditMode() ? 'Salva Modifiche' : 'Crea Avvistamento' }}
-        </button>
-    </form>
+    <div class="form-group">
+      <label for="imageFile">Carica Foto:</label>
+      <input type="file" id="imageFile" (change)="onFileSelected($event)" accept="image/*" multiple [attr.max]="5" />
+      <span *ngIf="selectedFiles().length > 0">
+        File selezionati: {{ selectedFileNames }}
+      </span>
+      <div *ngIf="selectedFiles().length > 5" class="error-message">
+        Puoi caricare al massimo 5 foto. Rimuovi alcune immagini per continuare.
+      </div>
+    </div>
+
+    <div class="image-preview-list" *ngIf="imagePreviews().length > 0">
+      <div class="image-preview-item" *ngFor="let preview of imagePreviews(); let i = index">
+        <img [src]="preview" alt="Anteprima foto" class="image-preview-thumb">
+        <button type="button" class="remove-image-btn" (click)="removeImage(i)">✕</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Dati posizione (compilati automaticamente):</label>
+      <div class="form-group">
+        <label for="address">Via/Indirizzo:</label>
+        <input type="text" id="address" formControlName="address" (change)="onAddressFieldsChange()" />
+      </div>
+      <div class="form-group">
+        <label for="city">Città:</label>
+        <input type="text" id="city" formControlName="city" (change)="onAddressFieldsChange()" />
+      </div>
+      <div class="form-group">
+        <label for="cap">CAP:</label>
+        <input type="text" id="cap" formControlName="cap" (change)="onAddressFieldsChange()" />
+      </div>
+      <div *ngIf="!selectedCoords()" class="info-message">
+        <em>Seleziona una posizione sulla mappa per ottenere indirizzo, città e CAP.</em>
+      </div>
+    </div>
+    <div class="form-group map-picker">
+      <label>Seleziona Posizione sulla Mappa:</label>
+      <div class="coords-display" *ngIf="selectedCoords()">
+        Latitudine: {{ selectedCoords()!.lat | number:'1.5-5' }}, Longitudine: {{ selectedCoords()!.lng |
+        number:'1.5-5' }}
+      </div>
+      <app-map [markers]="selectedCoords() ? [{
+    id: 1,
+    lat: selectedCoords()!.lat,
+    lng: selectedCoords()!.lng,
+    title: 'Posizione selezionata',
+    showDetailButton: false
+  }] : []" [center]="selectedCoords() || [40.8518, 14.2681]" [zoom]="selectedCoords() ? 15 : 13"
+        [enableClickForCoords]="true" (mapClickCoords)="onMapClick($event)">
+      </app-map>
+      <div
+        *ngIf="catForm.get('latitude')?.invalid && (catForm.get('latitude')?.dirty || catForm.get('latitude')?.touched)"
+        class="error-message">
+        <span>La posizione sulla mappa è obbligatoria.</span>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="catForm.invalid || isLoading() || selectedFiles().length > 5">
+      {{ isEditMode() ? 'Salva Modifiche' : 'Crea Avvistamento' }}
+    </button>
+  </form>
 </div>

@@ -1,22 +1,22 @@
 .cat-detail-container {
-    max-width: 800px;
-    margin: 2.5rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+  max-width: 800px;
+  margin: 2.5rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
 }
 
 h2 {
-    text-align: center;
-    color: #ff9800;
-    margin-bottom: 1.5rem;
+  text-align: center;
+  color: #ff9800;
+  margin-bottom: 1.5rem;
 }
 
 .detail-section {
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
 }
 
 /* detail.component.scss */
@@ -25,17 +25,21 @@ h2 {
 // puoi prependere il selettore del componente padre, se applicabile.
 // Ad esempio, .cat-detail-container o .add-comment-section
 
-.add-comment-section { 
-        margin-top: 2rem;
-    background: #fafafa;
-    border-radius: 8px;
-    padding: 1.2rem;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
-    
-    
-    // Questo è il div che contiene il form del commento
-  ::ng-deep { // Importante per sovrascrivere gli stili interni di Quill
-    .quill-custom { // Selettore della tua classe personalizzata
+.add-comment-section {
+  margin-top: 2rem;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 1.2rem;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+
+
+  // Questo è il div che contiene il form del commento
+  ::ng-deep {
+
+    // Importante per sovrascrivere gli stili interni di Quill
+    .quill-custom {
+
+      // Selettore della tua classe personalizzata
       .ql-toolbar {
         border-radius: 6px 6px 0 0;
         background: #f5f5f5;
@@ -55,7 +59,8 @@ h2 {
         // Questo è più simile a come il tuo '[styles]' in HTML sta funzionando.
         // Se vuoi che sia espandibile, allora i min-height del form sono migliori.
         // Proviamo prima con un'altezza fissa, dato che il tuo '[styles]' funzionava.
-        height: 180px; /* Altezza totale desiderata per l'area di input del commento */
+        height: 180px;
+        /* Altezza totale desiderata per l'area di input del commento */
 
         // Se preferisci che sia espandibile ma con un minimo, usa:
         // min-height: 140px; // come nel form component
@@ -84,116 +89,116 @@ h2 {
 
 
 .cat-image-multi {
-    width: 100%;
-    max-width: 350px;
-    height: auto;
-    object-fit: contain;
-    border-radius: 12px;
-    margin: 0 14px 14px 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-    background: #eee;
-    transition: transform 0.18s;
-    border: 2px solid #fff;
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  margin: 0 14px 14px 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+  background: #eee;
+  transition: transform 0.18s;
+  border: 2px solid #fff;
 }
 
 .cat-image-multi:hover {
-    transform: scale(1.04);
-    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+  transform: scale(1.04);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.13);
 }
 
 .image-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 1.2rem;
-    gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  gap: 8px;
 }
 
 .owner-actions {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.2rem;
-    justify-content: flex-end;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  justify-content: flex-end;
 }
 
 .edit-btn,
 .delete-btn {
-    padding: 0.5rem 1.2rem;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.2s;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
 }
 
 .edit-btn {
-    background: #ff9800;
-    color: #fff;
+  background: #ff9800;
+  color: #fff;
 }
 
 .edit-btn:hover {
-    background: #e65100;
+  background: #e65100;
 }
 
 .delete-btn {
-    background: #d32f2f;
-    color: #fff;
+  background: #d32f2f;
+  color: #fff;
 }
 
 .delete-btn:hover {
-    background: #b71c1c;
+  background: #b71c1c;
 }
 
 .map-detail {
-    margin: 1.5rem 0;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  margin: 1.5rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
 .description-wrapper {
-    background: #f8f8f8;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 1.5rem 2rem;
-    margin: 2.2rem 0 2.5rem 0;
-    border: 1px solid #eee;
+  background: #f8f8f8;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem 2rem;
+  margin: 2.2rem 0 2.5rem 0;
+  border: 1px solid #eee;
 }
 
 .description-wrapper h4 {
-    margin-top: 0;
-    color: #ff9800;
-    font-size: 1.18rem;
-    font-weight: 600;
+  margin-top: 0;
+  color: #ff9800;
+  font-size: 1.18rem;
+  font-weight: 600;
 }
 
 .markdown-content {
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    font-size: 1.08rem;
-    color: #333;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 1.08rem;
+  color: #333;
 }
 
 .comments-list {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 
 .comment-item {
-    background: #f5f5f5;
-    border-radius: 7px;
-    padding: 0.7rem 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  background: #f5f5f5;
+  border-radius: 7px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
 }
 
 .comment-author {
-    color: #ff9800;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
+  color: #ff9800;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
 }
 
 .comment-text {
@@ -206,70 +211,75 @@ h2 {
 }
 
 .comment-date {
-    color: #888;
-    font-size: 0.92rem;
+  color: #888;
+  font-size: 0.92rem;
 }
 
 .add-comment-section textarea {
-    width: 100%;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    padding: 0.7rem;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    resize: vertical;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 0.7rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  resize: vertical;
 }
 
 .add-comment-section button {
-    background: #ff9800;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 0.5rem 1.2rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .add-comment-section button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .add-comment-section button:hover:not(:disabled) {
-    background: #e65100;
+  background: #e65100;
 }
 
 .error-message {
-    color: #d32f2f;
-    font-size: 0.95rem;
-    margin-top: 0.2rem;
+  color: #d32f2f;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
 }
 
 .alert {
-    margin: 1rem auto;
-    max-width: 400px;
-    text-align: center;
+  margin: 1rem auto;
+  max-width: 400px;
+  text-align: center;
 }
 
 .image-modal {
   position: fixed;
   z-index: 9999;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(30,30,30,0.92);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 30, 30, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: zoom-out;
   animation: fadeInModal 0.2s;
 }
+
 .image-modal img {
   max-width: 92vw;
   max-height: 92vh;
   border-radius: 12px;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
   background: #fff;
 }
+
 .close-modal {
   position: fixed;
   top: 32px;
@@ -300,6 +310,7 @@ h2 {
     font-weight: 600;
     text-decoration: underline;
     transition: color 0.18s;
+
     &:hover {
       color: #e65100;
     }
@@ -327,6 +338,7 @@ h2 {
   background: #ff9800;
   color: #fff;
 }
+
 .edit-comment-btn:hover {
   background: #e65100;
 }
@@ -335,23 +347,44 @@ h2 {
   background: #d32f2f;
   color: #fff;
 }
+
 .delete-comment-btn:hover {
   background: #b71c1c;
 }
 
+
+.comment-date {
+  color: #888;
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+
+  span {
+    color: #1976d2;
+    font-style: italic;
+    margin-left: 0.5em;
+  }
+}
+
+
+
 @keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 
 @media (max-width: 900px) {
-    .cat-detail-container {
-        padding: 1rem;
-    }
+  .cat-detail-container {
+    padding: 1rem;
+  }
 
-    .cat-image {
-        width: 180px;
-        height: 180px;
-    }
+  .cat-image {
+    width: 180px;
+    height: 180px;
+  }
 }

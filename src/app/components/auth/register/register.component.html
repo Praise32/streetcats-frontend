@@ -2,12 +2,12 @@
   <h2>Registrazione</h2>
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <div class="form-group">
-      <label for="username">Nome Utente:</label>
-      <input type="text" id="username" formControlName="username">
+      <label for="name">Nome Utente:</label>
+      <input type="text" id="name" formControlName="name">
       <div
-        *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty || registerForm.get('username')?.touched)"
+        *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)"
         class="error-message">
-        <span *ngIf="registerForm.get('username')?.errors?.['required']">Nome utente è richiesto.</span>
+        <span *ngIf="registerForm.get('name')?.errors?.['required']">Nome utente è richiesto.</span>
       </div>
     </div>
 

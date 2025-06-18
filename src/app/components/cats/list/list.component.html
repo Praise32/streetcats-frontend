@@ -13,10 +13,17 @@
       <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.jpg'"
         alt="Immagine Gatto" class="cat-card-image">
       <h4>{{ cat.title }}</h4>
-<p>
-  <markdown [data]="cat.description | slice:0:100"></markdown>
-</p>      <p>📍 {{ cat.city }}</p>
-      <a [routerLink]="['/cats', cat.id]">Vedi Dettagli</a>
+      <p>
+        <strong>Luogo:</strong> {{ cat.address }}, {{ cat.city }}
+      </p>
+      <a [routerLink]="['/cats', cat.id]">Dettagli</a>
     </div>
+  </div>
+
+  <!-- Controlli paginazione -->
+  <div class="pagination-controls" *ngIf="totalPages() > 1">
+    <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">Precedente</button>
+    <span>Pagina {{ currentPage() }} di {{ totalPages() }}</span>
+    <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">Successiva</button>
   </div>
 </div>

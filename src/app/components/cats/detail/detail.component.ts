@@ -90,6 +90,12 @@ export class CatDetailComponent implements OnInit {
     this.errorMessage.set(null);
     this.catService.getCatById(id).subscribe({
       next: (data: CatPost) => {
+        // Ordina i commenti per data di creazione
+        if (data.comments) {
+          data.comments = data.comments.sort((a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        }
         this.catPost.set(data);
         if (data.latitude && data.longitude) {
           const lat = parseFloat(data.latitude);
@@ -116,32 +122,38 @@ export class CatDetailComponent implements OnInit {
     });
   }
 
-onCommentSubmit(): void {
-  if (this.commentForm.valid && this.catPost()) {
-    const postId = this.catPost()!.id;
-    const commentText = this.commentForm.getRawValue().text;
-    console.log('Invio commento:', { postId, commentText }); // <-- DEBUG
+  onCommentSubmit(): void {
+    if (this.commentForm.valid && this.catPost()) {
+      const postId = this.catPost()!.id;
+      const commentText = this.commentForm.getRawValue().text;
+      console.log('Invio commento:', { postId, commentText }); // <-- DEBUG
 
-    this.commentService.addComment(postId, commentText).subscribe({
-      next: (newComment: any) => {
-        this.catPost.update(currentPost => {
-          if (currentPost) {
-            const updatedComments = currentPost.comments ? [...currentPost.comments, newComment] : [newComment];
-            return { ...currentPost, comments: updatedComments };
-          }
-          return currentPost;
-        });
-        this.commentForm.reset(); // Resetta SOLO dopo aver inviato
-      },
-      error: (err) => {
-        this.errorMessage.set(err.message || 'Errore durante l\'aggiunta del commento.');
-        console.error('Errore aggiunta commento:', err);
-      }
-    });
-  } else {
-    this.errorMessage.set('Per favore, inserisci un commento valido.');
+      this.commentService.addComment(postId, commentText).subscribe({
+        next: (newComment: any) => {
+          this.catPost.update(currentPost => {
+            if (currentPost) {
+              const updatedComments = currentPost.comments
+                ? [...currentPost.comments, newComment]
+                : [newComment];
+              // Ordina per data di creazione
+              updatedComments.sort((a, b) =>
+                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+              );
+              return { ...currentPost, comments: updatedComments };
+            }
+            return currentPost;
+          });
+          this.commentForm.reset(); // Resetta SOLO dopo aver inviato
+        },
+        error: (err) => {
+          this.errorMessage.set(err.message || 'Errore durante l\'aggiunta del commento.');
+          console.error('Errore aggiunta commento:', err);
+        }
+      });
+    } else {
+      this.errorMessage.set('Per favore, inserisci un commento valido.');
+    }
   }
-}
 
   // Helper per ottenere l'URL della prima foto o un placeholder
   getCatImageUrl(): string {
@@ -183,39 +195,84 @@ onCommentSubmit(): void {
 
   modalImageUrl: string | null = null;
 
-openImageModal(url: string) {
-  this.modalImageUrl = url;
-}
+  openImageModal(url: string) {
+    this.modalImageUrl = url;
+  }
 
-closeImageModal() {
-  this.modalImageUrl = null;
-}
+  closeImageModal() {
+    this.modalImageUrl = null;
+  }
 
+  editingCommentId: number | null = null;
+  editCommentForm: FormGroup = new FormGroup({
+    text: new FormControl('', Validators.required)
+  });
+
+  // Avvia la modifica
   onEditComment(comment: Comment) {
-    // Implementa la logica di modifica (es: apri un form inline)
-    console.log('Modifica commento', comment);
+    this.editingCommentId = comment.id;
+    this.editCommentForm.setValue({ text: comment.text });
   }
 
-onDeleteComment(comment: Comment) {
-  if (confirm('Vuoi davvero eliminare questo commento?')) {
-    this.commentService.deleteComment(comment.id).subscribe({
-      next: () => {
-        // Aggiorna la lista dei commenti senza ricaricare la pagina
-        this.catPost.update(currentPost => {
-          if (!currentPost) return currentPost;
-          return {
-            ...currentPost,
-            comments: currentPost.comments?.filter(c => c.id !== comment.id) || []
-          };
-        });
-      },
-      error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del commento.')
-    });
+  // Salva la modifica
+  onUpdateComment(comment: Comment) {
+    if (this.editCommentForm.valid) {
+      const newText = this.editCommentForm.get('text')?.value;
+      const commentId = Number(comment.id);
+      if (isNaN(commentId)) {
+        this.errorMessage.set('ID commento non valido.');
+        return;
+      }
+      this.commentService.updateComment(commentId, newText).subscribe({
+        next: (updatedComment) => {
+          this.catPost.update(currentPost => {
+            if (!currentPost) return currentPost;
+            const updatedComments = (currentPost.comments?.map(c =>
+              c.id === updatedComment.id
+                ? { ...c, text: updatedComment.text, updatedAt: updatedComment.updatedAt }
+                : c
+            ) || []).sort((a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+            return {
+              ...currentPost,
+              comments: updatedComments
+            };
+          });
+          this.editingCommentId = null;
+        },
+        error: (err) => {
+          this.errorMessage.set(err.message || 'Errore durante la modifica del commento.');
+        }
+      });
+    }
   }
-}
+
+  // Annulla la modifica
+  onCancelEditComment() {
+    this.editingCommentId = null;
+  }
+
+  onDeleteComment(comment: Comment) {
+    if (confirm('Vuoi davvero eliminare questo commento?')) {
+      this.commentService.deleteComment(comment.id).subscribe({
+        next: () => {
+          // Aggiorna la lista dei commenti senza ricaricare la pagina
+          this.catPost.update(currentPost => {
+            if (!currentPost) return currentPost;
+            return {
+              ...currentPost,
+              comments: currentPost.comments?.filter(c => c.id !== comment.id) || []
+            };
+          });
+        },
+        error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del commento.')
+      });
+    }
+  }
 
   get currentUser(): User | null {
-  return this.authService.getCurrentUser();
-}
+    return this.authService.getCurrentUser();
+  }
 
 }

@@ -11,7 +11,7 @@
     padding: 0.5rem 1.2rem;
     color: #fff;
     // border-radius: 0 0 18px 18px; // RIMUOVI questa riga!
-    box-shadow: 0 2px 16px rgba(0,0,0,0.13);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.13);
     margin: 0;
     min-height: 54px;
     font-size: 1rem;
@@ -26,6 +26,7 @@
     font-weight: bold;
     letter-spacing: 1px;
     transition: color 0.2s;
+
     &:hover {
         color: #ff9800;
     }
@@ -69,7 +70,7 @@
     font-weight: 600;
     font-size: 0.98rem;
     letter-spacing: 0.5px;
-    box-shadow: 0 1px 6px rgba(255,152,0,0.10);
+    box-shadow: 0 1px 6px rgba(255, 152, 0, 0.10);
     display: flex;
     align-items: center;
     gap: 0.3em;
@@ -77,8 +78,15 @@
 }
 
 @keyframes fadeInBadge {
-    from { opacity: 0; transform: translateY(-10px);}
-    to { opacity: 1; transform: translateY(0);}
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .logout-btn {
@@ -91,7 +99,7 @@
     font-size: 0.98rem;
     cursor: pointer;
     margin-left: 0.1rem;
-    box-shadow: 0 1px 6px rgba(211,47,47,0.10);
+    box-shadow: 0 1px 6px rgba(211, 47, 47, 0.10);
     transition: background 0.2s, transform 0.1s;
 
     &:hover {
@@ -108,11 +116,13 @@
         border-radius: 0 0 12px 12px;
         min-height: 48px;
     }
+
     .navbar-links {
         flex-direction: column;
         gap: 0.5rem;
         width: 100%;
     }
+
     .user-info {
         margin-top: 0.5rem;
     }

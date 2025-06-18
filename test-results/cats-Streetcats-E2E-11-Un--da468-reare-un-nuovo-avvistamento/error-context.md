@@ -1,0 +1,61 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - navigation:
+    - link "🐾 STREETCATS":
+      - /url: /cats
+    - list:
+      - listitem:
+        - link "Avvistamenti":
+          - /url: /cats
+      - listitem:
+        - link "Nuovo Avvistamento":
+          - /url: /cats/new
+      - listitem:
+        - text: ✔ Sei loggato
+        - button "Logout"
+- main:
+  - heading "Nuovo Avvistamento Gatto" [level=2]
+  - text: "Titolo:"
+  - textbox "Titolo:": Test Playwright 1749823387839
+  - text: "Descrizione:"
+  - toolbar:
+    - button "bold":
+      - img
+    - button "italic":
+      - img
+    - button "underline":
+      - img
+    - button "strike":
+      - img
+    - 'button "list: ordered"':
+      - img
+    - 'button "list: bullet"':
+      - img
+    - button "link":
+      - img
+    - button "blockquote":
+      - img
+    - button "clean":
+      - img
+  - paragraph: Gatto avvistato vicino al parco.
+  - text: "Carica Foto:"
+  - button "Carica Foto:"
+  - text: "Dati posizione (compilati automaticamente): Via/Indirizzo:"
+  - textbox "Via/Indirizzo:": Via Test
+  - text: "Città:"
+  - textbox "Città:": Napoli
+  - text: "CAP:"
+  - textbox "CAP:": "80100"
+  - emphasis: Seleziona una posizione sulla mappa per ottenere indirizzo, città e CAP.
+  - text: "Seleziona Posizione sulla Mappa:"
+  - button "Zoom in"
+  - button "Zoom out"
+  - link "Leaflet":
+    - /url: https://leafletjs.com
+  - text: ©
+  - link "OpenStreetMap":
+    - /url: http://www.openstreetmap.org/copyright
+  - button "Crea Avvistamento" [disabled]
+```

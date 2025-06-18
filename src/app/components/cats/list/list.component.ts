@@ -1,5 +1,5 @@
 // src/app/cats/list/cat-list.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component'; // Importa il MapComponent
 import { CatService } from '../../../services/cat.service';
@@ -14,12 +14,18 @@ import { MarkdownModule } from 'ngx-markdown';
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
+
 export class CatListComponent implements OnInit {
-  // Questi sono segnali interni al componente
   catMarkers = signal<MapMarker[]>([]);
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
   cats = signal<CatPost[]>([]);
+  currentPage = signal(1);
+  pageSize = 6;
+  totalItems = signal(0); // <-- aggiungi questo se il backend lo restituisce
+
+  // Calcola il numero totale di pagine
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize));
 
   constructor(private catService: CatService) { }
 
@@ -30,17 +36,19 @@ export class CatListComponent implements OnInit {
   private loadCats(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.catService.getAllCats().subscribe({
-      next: (data: CatPost[]) => {
-        this.cats.set(data);
 
-        // Deriva i marker dai dati dei gatti e imposta il signal
-        this.catMarkers.set(data.map(cat => ({
+    this.catService.getAllCats(this.currentPage(), this.pageSize).subscribe({
+      next: (response: any) => {
+        // Adatta questa parte in base alla risposta del backend
+        this.cats.set(response.data || []);
+        this.totalItems.set(response.total || (response.data ? response.data.length : 0));
+
+        this.catMarkers.set((response.data || []).map((cat: CatPost) => ({
           id: cat.id,
           lat: parseFloat(cat.latitude || '0'),
           lng: parseFloat(cat.longitude || '0'),
           title: cat.title,
-          description: cat.description ? cat.description + '...' : '',
+          description: cat.description ? cat.description.substring(0, 80) + (cat.description.length > 80 ? '...' : '') : '',
           imageUrl: 'assets/MarkerCats.png',
         })));
         this.isLoading.set(false);
@@ -48,8 +56,13 @@ export class CatListComponent implements OnInit {
       error: (err) => {
         this.errorMessage.set(err.message || 'Impossibile caricare gli avvistamenti dei gatti.');
         this.isLoading.set(false);
-        console.error('Errore caricamento gatti:', err);
       }
     });
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+    this.loadCats();
   }
 }
