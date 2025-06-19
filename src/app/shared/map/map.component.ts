@@ -94,8 +94,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     this.leafletMap = L.map(this.mapContainer.nativeElement, {
-      center: this.center(), // Accedi al valore del signal con ()
-      zoom: this.zoom()      // Accedi al valore del signal con ()
+      center: this.center(),
+      zoom: this.zoom()
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -116,8 +116,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     if (this.selectedMarkerLayer) {
       this.leafletMap.removeLayer(this.selectedMarkerLayer);
     }
+    const customIcon = L.icon({
+      iconUrl: 'assets/MarkerCats.png',
+      shadowUrl: 'assets/marker-shadow.png',
+      iconSize: [72, 72],
+      iconAnchor: [36, 72],
+      popupAnchor: [0, -72],
+      shadowSize: [72, 40],
+      shadowAnchor: [25, 40]
+    });
 
-    const newMarker = L.marker([lat, lng]).addTo(this.leafletMap);
+    const newMarker = L.marker([lat, lng], { icon: customIcon }).addTo(this.leafletMap);
     this.selectedMarkerLayer = newMarker;
   }
   private updateMarkers(): void {

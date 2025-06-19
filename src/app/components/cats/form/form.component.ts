@@ -34,6 +34,7 @@ export class CatFormComponent implements OnInit {
   selectedFiles = signal<File[]>([]);
   imagePreviews = signal<string[]>([]);
   addressSuggestions: any[] = [];
+  existingPhotos: { id: number, url: string, filename: string }[] = [];
 
 
 
@@ -90,11 +91,30 @@ export class CatFormComponent implements OnInit {
             lng: parseFloat(cat.longitude)
           });
         }
+        // Salva le foto già caricate
+        this.existingPhotos = (cat.photos || []).map(photo => ({
+          id: photo.id,
+          url: photo.url,
+          filename: photo.filename
+        }));
         this.isLoading.set(false);
       },
       error: (err) => {
         this.errorMessage.set(err.message || 'Errore durante il caricamento del gatto per la modifica.');
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  // Metodo per eliminare una foto già caricata
+  removeExistingPhoto(photoId: number) {
+    if (!confirm('Vuoi davvero eliminare questa foto?')) return;
+    this.catService.deletePhoto(photoId).subscribe({
+      next: () => {
+        this.existingPhotos = this.existingPhotos.filter(p => p.id !== photoId);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Errore durante l\'eliminazione della foto.');
       }
     });
   }

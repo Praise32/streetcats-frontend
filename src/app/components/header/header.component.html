@@ -8,7 +8,9 @@
     <li><a routerLink="/cats/new" routerLinkActive="active">Nuovo Avvistamento</a></li>
     <ng-container *ngIf="authService.isLoggedIn(); else notLogged">
       <li class="user-info">
-        <span class="logged-in-badge">✔ Sei loggato</span>
+        <span class="logged-in-badge">
+          {{ authService.getCurrentUser()?.name || authService.getCurrentUser()?.email || 'Utente' }}
+        </span>
         <button class="logout-btn" (click)="logout()">Logout</button>
       </li>
     </ng-container>

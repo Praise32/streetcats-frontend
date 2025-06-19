@@ -29,7 +29,6 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          console.log('Login successful:', response);
           this.router.navigate(['/cats']); // Reindirizza alla lista gatti dopo il login
         },
         error: (err) => {

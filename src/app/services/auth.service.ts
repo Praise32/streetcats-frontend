@@ -1,16 +1,15 @@
-// src/app/services/auth.service.ts
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
-// Definisci le interfacce per i tuoi dati (si basano sulle risposte del tuo backend)
+// interfacce per le risposte del backend e i dati dell'utente
 interface AuthResponse {
   token: string;
-  userId: string; // O qualsiasi altro dato utile che il tuo backend restituisce
-  // ... altri campi come username, ruoli, ecc.
+  userId: string;
+  name?: string; // Opzionale, se il backend lo restituisce
+  email?: string; // Opzionale, se il backend lo restituisce
 }
-
 interface UserCredentials {
   email: string;
   password: string;
@@ -27,8 +26,7 @@ interface RegisterData {
 export class AuthService {
   private baseUrl = 'http://localhost:5003/login';
 
-  // Useremo un signal per lo stato di autenticazione, come raccomandato da Angular 20
-  // Sarà un signal di stringa (il token) o null se non loggato
+  // Signal di stringa (il token) o null se non loggato
   private _authToken = signal<string | null>(null);
 
   // Espone un getter pubblico per il token
@@ -36,7 +34,7 @@ export class AuthService {
     return this._authToken.asReadonly(); // Rende il signal di sola lettura all'esterno
   }
 
-  // Puoi anche esporre un signal booleano per sapere se l'utente è loggato
+  // Signal booleano per sapere se l'utente è loggato
   isLoggedIn = signal<boolean>(false);
 
   constructor(private http: HttpClient, private router: Router) {
@@ -71,7 +69,6 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.baseUrl}`, credentials).pipe(
       tap(response => {
         this.saveAuthToken(response.token);
-        console.log('Login successful, token saved:', response.token);
       }),
       catchError(this.handleError)
     );
@@ -99,7 +96,6 @@ export class AuthService {
     try {
       // Decodifica il payload del JWT (base64)
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // Adatta i nomi dei campi a quelli che il tuo backend inserisce nel JWT!
       return {
         id: payload.userId || payload.id,
         name: payload.name,

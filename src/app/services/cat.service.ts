@@ -49,6 +49,10 @@ export class CatService {
     );
   }
 
+  deletePhoto(photoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/photos/${photoId}`);
+  }
+
 
   private handleError(error: any): Observable<never> {
     let errorMessage = 'An unknown error occurred with cat data!';
