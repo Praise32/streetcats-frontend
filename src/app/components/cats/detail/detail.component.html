@@ -21,10 +21,10 @@
         </ng-container>
       </div>
       <!-- Modal per fullscreen -->
-      <dialog class="image-modal" [open]="modalImageUrl" (click)="closeImageModal()" (keydown.escape)="closeImageModal()">
-        <img [src]="modalImageUrl" alt="Foto ingrandita" />
+      <div class="image-modal" *ngIf="modalImageUrl" (click)="closeImageModal()">
+        <img [src]="modalImageUrl" alt="Foto ingrandita" (click)="$event.stopPropagation()" />
         <button type="button" class="close-modal" (click)="closeImageModal()" aria-label="Chiudi">&times;</button>
-      </dialog>
+      </div>
       <ng-template #noPhoto>
         <div class="image-wrapper">
           <img src="assets/placeholder-cat.jpg" alt="Nessuna foto" class="cat-image-multi" />

@@ -9,7 +9,7 @@
 
 h2 {
   text-align: center;
-  color: #e65100;
+  color: #ff9800;
   margin-bottom: 1.5rem;
 }
 
@@ -63,7 +63,7 @@ h2 {
   }
 
   button {
-    background: #c43e00;
+    background: #ff9800;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -78,7 +78,7 @@ h2 {
     }
 
     &:hover:not(:disabled) {
-      background: #9a3000;
+      background: #e65100;
     }
   }
 }
@@ -156,11 +156,11 @@ h2 {
 }
 
 .edit-btn {
-  background: #c43e00;
+  background: #ff9800;
   color: #fff;
 
   &:hover {
-    background: #9a3000;
+    background: #e65100;
   }
 }
 
@@ -190,7 +190,7 @@ h2 {
 
   h4 {
     margin-top: 0;
-    color: #e65100;
+    color: #ff9800;
     font-size: 1.18rem;
     font-weight: 600;
   }
@@ -222,7 +222,7 @@ h2 {
 }
 
 .comment-author {
-  color: #e65100;
+  color: #ff9800;
   font-weight: 500;
   margin-bottom: 0.2rem;
 }
@@ -265,11 +265,11 @@ h2 {
 }
 
 .edit-comment-btn {
-  background: #c43e00;
+  background: #ff9800;
   color: #fff;
 
   &:hover {
-    background: #9a3000;
+    background: #e65100;
   }
 }
 
@@ -307,13 +307,13 @@ h2 {
   box-shadow: 0 1px 8px rgba(255, 152, 0, 0.07);
 
   a {
-    color: #c43e00;
+    color: #ff9800;
     font-weight: 600;
     text-decoration: underline;
     transition: color 0.18s;
 
     &:hover {
-      color: #9a3000;
+      color: #e65100;
     }
   }
 }
