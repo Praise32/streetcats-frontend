@@ -13,7 +13,6 @@ import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Router } from '@angular/router';
 import { marked } from 'marked';
-import { DomSanitizer } from '@angular/platform-browser';
 
 
 
@@ -25,6 +24,7 @@ export interface MapMarker {
   description?: string;
   imageUrl?: string;
   showDetailButton?: boolean;
+  address?: string;
 }
 
 @Component({
@@ -50,7 +50,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   selectedMarkerLayer: L.Marker | null = null;
   private currentMarkers: L.Marker[] = [];
 
-  constructor(private router: Router, private sanitizer: DomSanitizer) {
+  constructor(private readonly router: Router) {
     // Usiamo effect() per reagire ai cambiamenti degli input signals
     effect(() => {
       // Accedi ai segnali per triggerare l'effect quando cambiano
@@ -153,21 +153,47 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const marker = L.marker([markerData.lat, markerData.lng], { icon: customIcon });
       // Converti markdown in HTML per tooltip e popup
       const descriptionHtml = marked.parse(markerData.description || '') as string;
-      const safeDescriptionHtml = this.sanitizer.bypassSecurityTrustHtml(descriptionHtml);
 
-      marker.bindTooltip(
-        `<b>${markerData.title}</b><br>${descriptionHtml.substring(0, 100)}`,
-        { permanent: false, direction: 'top' }
-      );
+      // Tooltip diverso per pagina dettaglio vs lista
+      if (markerData.showDetailButton === false) {
+        marker.bindTooltip(
+          `<b>📍 Clicca per info posizione</b>`,
+          { permanent: false, direction: 'top' }
+        );
+      } else {
+        marker.bindTooltip(
+          `<b>${markerData.title}</b><br>${descriptionHtml.substring(0, 100)}`,
+          { permanent: false, direction: 'top' }
+        );
+      }
 
       marker.bindPopup(() => {
         const div = L.DomUtil.create('div');
-        div.innerHTML = `
-    <h3>${markerData.title}</h3>
-    <div>${descriptionHtml.substring(0, 256)}</div>
-    ${markerData.showDetailButton !== false ? `<button id="detail-button-${markerData.id}">Vedi Dettaglio</button>` : ''}
-  `;
-        if (markerData.showDetailButton !== false) {
+        
+        if (markerData.showDetailButton === false) {
+          // Popup per pagina dettaglio: coordinate + link navigazione
+          const googleMapsUrl = `https://www.google.com/maps?q=${markerData.lat},${markerData.lng}`;
+          div.innerHTML = `
+            <div class="map-popup-detail">
+              <p style="margin: 0 0 8px 0;"><strong>📍 Coordinate:</strong><br>
+                Lat: ${markerData.lat.toFixed(5)}<br>
+                Lng: ${markerData.lng.toFixed(5)}
+              </p>
+              ${markerData.address ? `<p style="margin: 0 0 8px 0;"><strong>🏠 Indirizzo:</strong><br>${markerData.address}</p>` : ''}
+              <a href="${googleMapsUrl}" target="_blank" rel="noopener" 
+                 style="display: inline-block; padding: 6px 12px; background: #ff9800; color: white; 
+                        text-decoration: none; border-radius: 4px; font-size: 13px;">
+                🗺️ Apri in Google Maps
+              </a>
+            </div>
+          `;
+        } else {
+          // Popup standard con pulsante dettaglio
+          div.innerHTML = `
+            <h3>${markerData.title}</h3>
+            <div>${descriptionHtml.substring(0, 256)}</div>
+            <button id="detail-button-${markerData.id}">Vedi Dettaglio</button>
+          `;
           const detailButton = div.querySelector(`#detail-button-${markerData.id}`) as HTMLElement;
           if (detailButton) {
             L.DomEvent.on(detailButton, 'click', () => {

@@ -130,7 +130,9 @@ export class CatDetailComponent implements OnInit {
               lng: lng,
               title: data.title,
               description: data.description || '',
-              imageUrl: data.photos && data.photos.length > 0 ? data.photos[0].url : undefined
+              imageUrl: data.photos && data.photos.length > 0 ? data.photos[0].url : undefined,
+              showDetailButton: false,
+              address: `${data.address}, ${data.city} (${data.cap})`
             }
           ]);
         }

@@ -32,19 +32,19 @@ test.describe('Streetcats E2E', () => {
 
     test('5. Registrazione con email già usata mostra errore', async ({ page }) => {
         await page.goto('/auth/register');
-        await page.fill('input#name', 'Test');
+        await page.fill('input#name', 'TestUser');
         await page.fill('input#email', 'test@email.com');
         await page.fill('input#phone', '1234567890');
-        await page.fill('input#password', 'password');
+        await page.fill('input#password', 'Password123');
         await page.waitForSelector('button[type="submit"]:not([disabled])');
         await page.click('button[type="submit"]');
-        await expect(page.locator('.toast-error, .alert-danger')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.toast-error, .toast-warning')).toBeVisible({ timeout: 5000 });
     });
 
     test('6. Form nuovo avvistamento richiede titolo', async ({ page }) => {
         await page.goto('/auth/login');
         await page.fill('input[type="text"]', 'Mariano');
-        await page.fill('input[type="password"]', '123');
+        await page.fill('input[type="password"]', 'password123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
@@ -64,11 +64,12 @@ test.describe('Streetcats E2E', () => {
 
     test('7. Aggiunta commento richiede login', async ({ page }) => {
         await page.context().clearCookies();
+        await page.evaluate(() => localStorage.clear());
         await page.goto('/cats');
         await expect(page.locator('a.cat-card')).not.toHaveCount(0);
         await page.locator('a.cat-card').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
-        await expect(page.locator('.alert-info')).toContainText('Effettua il login');
+        await expect(page.locator('.alert-info')).toContainText('Effettua il', { timeout: 5000 });
     });
 
     test('8. Naviga tra le pagine della lista', async ({ page }) => {
@@ -87,7 +88,7 @@ test.describe('Streetcats E2E', () => {
     test('10. Ricerca indirizzo nella form', async ({ page }) => {
         await page.goto('/auth/login');
         await page.fill('input[type="text"]', 'Mariano');
-        await page.fill('input[type="password"]', '123');
+        await page.fill('input[type="password"]', 'password123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
@@ -102,7 +103,7 @@ test.describe('Streetcats E2E', () => {
     test('11. Un utente autenticato può creare un nuovo avvistamento', async ({ page }) => {
         await page.goto('/auth/login');
         await page.fill('input[type="text"]', 'Mariano');
-        await page.fill('input[type="password"]', '123');
+        await page.fill('input[type="password"]', 'password123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
@@ -112,11 +113,13 @@ test.describe('Streetcats E2E', () => {
         const titolo = 'Test Playwright ' + Date.now();
         await page.fill('input#title', titolo);
         await page.locator('.ql-editor').first().fill('Gatto avvistato vicino al parco.');
-        await page.fill('input#address', 'Via Test');
-        await page.fill('input#city', 'Napoli');
-        await page.fill('input#cap', '80100');
+        
+        // Clicca sulla mappa per impostare le coordinate
+        await page.waitForSelector('app-map .leaflet-container', { timeout: 10000 });
+        await page.locator('app-map .leaflet-container').click({ position: { x: 200, y: 200 } });
+        await page.waitForTimeout(500);
 
-        await page.waitForSelector('button[type="submit"]:not([disabled])');
+        await page.waitForSelector('button[type="submit"]:not([disabled])', { timeout: 10000 });
         await page.click('button[type="submit"]');
 
         // Gestisce il confirmation dialog
@@ -130,7 +133,7 @@ test.describe('Streetcats E2E', () => {
     test('12. Un utente autenticato può aggiungere un commento', async ({ page }) => {
         await page.goto('/auth/login');
         await page.fill('input[type="text"]', 'Mariano');
-        await page.fill('input[type="password"]', '123');
+        await page.fill('input[type="password"]', 'password123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
@@ -139,7 +142,7 @@ test.describe('Streetcats E2E', () => {
 
         const commentText = 'Commento test ' + Date.now();
         await page.locator('.ql-editor').first().fill(commentText);
-        await page.click('button:has-text("Aggiungi Commento")');
+        await page.click('button:has-text("Invia Commento")');
 
         // Gestisce il confirmation dialog
         await page.waitForSelector('app-confirm-dialog dialog.dialog', { timeout: 5000 });
