@@ -92,6 +92,15 @@ src/app/
 
 L'applicazione si connette a un backend API. Configura l'URL del backend nei servizi se necessario.
 
+## 👤 Autore
+
+**Nome**: Mariano Sommella
+**Matricola**: N86004374
+**Email**: marian.sommella@studenti.unina.it
+
+---
+
+
 ## 📄 Licenza
 
 MIT

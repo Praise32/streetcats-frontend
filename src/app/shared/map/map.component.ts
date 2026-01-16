@@ -3,7 +3,6 @@ import {
   Component,
   ElementRef,
   ViewChild,
-  signal, // Importa signal
   input, // Importa input
   output, // Importa output
   effect, // Importa effect
