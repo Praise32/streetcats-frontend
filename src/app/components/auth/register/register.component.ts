@@ -16,9 +16,9 @@ export class RegisterComponent {
   registerForm: FormGroup;
 
   constructor(
-    private authService: AuthService, 
-    private router: Router,
-    private toastr: ToastrService 
+    private readonly authService: AuthService, 
+    private readonly router: Router,
+    private readonly toastr: ToastrService 
   ) {
     this.registerForm = new FormGroup({
       name: new FormControl('', [
@@ -29,12 +29,12 @@ export class RegisterComponent {
       email: new FormControl('', [Validators.required, Validators.email]),
       phone: new FormControl('', [
         Validators.required, 
-        Validators.pattern('^[0-9]{10}$') 
+        Validators.pattern(/^\d{10}$/) 
       ]),
       password: new FormControl('', [
         Validators.required, 
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9]).*$/) 
+        Validators.pattern(/^(?=.*[A-Z])(?=.*\d).*$/) 
       ])
     });
   }
@@ -47,11 +47,16 @@ export class RegisterComponent {
           this.router.navigate(['/cats']);
         },
         error: (err) => {
-          const errorMsg = err.message || '';
-          if (errorMsg.includes('email') || errorMsg.includes('already')) {
-             this.toastr.error('Questa email è già registrata', 'Email esistente');
+          const errorMsg = (err.error?.message || err.message || '').toLowerCase();
+          
+          if (errorMsg.includes('phone') || errorMsg.includes('telefono')) {
+            this.toastr.error('Questo numero di telefono è già registrato', 'Telefono esistente');
+          } else if (errorMsg.includes('name') || errorMsg.includes('nome') || errorMsg.includes('username')) {
+            this.toastr.error('Questo nome utente è già in uso', 'Nome utente esistente');
+          } else if (errorMsg.includes('email') || errorMsg.includes('already')) {
+            this.toastr.error('Questa email è già registrata', 'Email esistente');
           } else {
-             this.toastr.error('Registrazione fallita. Riprova.', 'Errore');
+            this.toastr.error('Registrazione fallita. Riprova.', 'Errore');
           }
         }
       });

@@ -148,6 +148,39 @@ export class CatFormComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files).filter(file => file.type.startsWith('image/'));
+      
+      // Calcola il totale foto (esistenti + nuove)
+      const totalPhotos = this.existingPhotos.length + files.length;
+      const maxAllowed = 5 - this.existingPhotos.length;
+      
+      if (totalPhotos > 5) {
+        this.toastr.warning(
+          `Puoi aggiungere al massimo ${maxAllowed} foto. Hai già ${this.existingPhotos.length} foto caricate.`,
+          'Limite foto raggiunto'
+        );
+        // Prendi solo le foto consentite
+        const allowedFiles = files.slice(0, maxAllowed);
+        this.selectedFiles.set(allowedFiles);
+        
+        // Genera le anteprime solo per i file consentiti
+        const previews: string[] = [];
+        allowedFiles.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            previews.push(e.target.result);
+            if (previews.length === allowedFiles.length) {
+              this.imagePreviews.set(previews);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+        
+        if (allowedFiles.length === 0) {
+          this.imagePreviews.set([]);
+        }
+        return;
+      }
+      
       this.selectedFiles.set(files);
 
       // Genera le anteprime
@@ -156,7 +189,6 @@ export class CatFormComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = (e: any) => {
           previews.push(e.target.result);
-          // Aggiorna il signal solo quando tutte le anteprime sono pronte
           if (previews.length === files.length) {
             this.imagePreviews.set(previews);
           }
@@ -164,11 +196,7 @@ export class CatFormComponent implements OnInit {
         reader.readAsDataURL(file);
       });
 
-      if (files.length > 5) {
-        this.errorMessage.set('Puoi caricare al massimo 5 foto.');
-      } else {
-        this.errorMessage.set(null);
-      }
+      this.errorMessage.set(null);
     } else {
       this.selectedFiles.set([]);
       this.imagePreviews.set([]);
