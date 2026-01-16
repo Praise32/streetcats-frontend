@@ -15,7 +15,11 @@
         <ng-container *ngIf="!!post.photos && post.photos.length > 0; else noPhoto">
           <ng-container *ngFor="let photo of post.photos | slice : 0 : 5">
             <button type="button" class="image-button" (click)="openImageModal(photo.url)">
-              <img [src]="photo.url" alt="Foto gatto" class="cat-image-multi" />
+              <img [src]="photo.url" 
+                   alt="Foto gatto" 
+                   class="cat-image-multi" 
+                   (load)="onImageLoad(photo.url)"
+                   [class.loaded]="isImageLoaded(photo.url)" />
             </button>
           </ng-container>
         </ng-container>

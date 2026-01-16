@@ -48,6 +48,9 @@ export class CatDetailComponent implements OnInit {
   commentToDelete: Comment | null = null;
   pendingCommentText: string | null = null;
 
+  // Gestione caricamento immagini
+  loadedImages = new Set<string>();
+
   @ViewChild('commentArea') commentArea!: ElementRef<HTMLTextAreaElement>;
 
 
@@ -315,6 +318,14 @@ export class CatDetailComponent implements OnInit {
 
   get currentUser(): User | null {
     return this.authService.getCurrentUser();
+  }
+
+  onImageLoad(url: string): void {
+    this.loadedImages.add(url);
+  }
+
+  isImageLoaded(url: string): boolean {
+    return this.loadedImages.has(url);
   }
 
 }
