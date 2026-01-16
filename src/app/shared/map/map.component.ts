@@ -156,13 +156,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
       // Tooltip diverso per pagina dettaglio vs lista
       if (markerData.showDetailButton === false) {
+        // Pagina dettaglio: info posizione
         marker.bindTooltip(
           `<b>📍 Clicca per info posizione</b>`,
           { permanent: false, direction: 'top' }
         );
       } else {
+        // Lista: invito a cliccare per dettagli
         marker.bindTooltip(
-          `<b>${markerData.title}</b><br>${descriptionHtml.substring(0, 100)}`,
+          `<b>🐱 Clicca per dettagli avvistamento</b>`,
           { permanent: false, direction: 'top' }
         );
       }
@@ -181,18 +183,26 @@ export class MapComponent implements AfterViewInit, OnDestroy {
               </p>
               ${markerData.address ? `<p style="margin: 0 0 8px 0;"><strong>🏠 Indirizzo:</strong><br>${markerData.address}</p>` : ''}
               <a href="${googleMapsUrl}" target="_blank" rel="noopener" 
-                 style="display: inline-block; padding: 6px 12px; background: #ff9800; color: white; 
-                        text-decoration: none; border-radius: 4px; font-size: 13px;">
-                🗺️ Apri in Google Maps
+                 style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; 
+                        text-decoration: none; border-radius: 20px; font-size: 13px; font-weight: 500; box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3); transition: transform 0.2s;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                Naviga con Google Maps
               </a>
             </div>
           `;
         } else {
-          // Popup standard con pulsante dettaglio
+          // Popup standard con pulsante dettaglio custom
           div.innerHTML = `
-            <h3>${markerData.title}</h3>
-            <div>${descriptionHtml.substring(0, 256)}</div>
-            <button id="detail-button-${markerData.id}">Vedi Dettaglio</button>
+            <div style="text-align: center; padding: 4px;">
+              <h3 style="margin: 0 0 8px 0; color: #333; font-size: 15px;">${markerData.title}</h3>
+              <p style="margin: 0 0 12px 0; color: #666; font-size: 13px; line-height: 1.4;">${descriptionHtml.substring(0, 150)}${descriptionHtml.length > 150 ? '...' : ''}</p>
+              <button id="detail-button-${markerData.id}" 
+                      style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: linear-gradient(135deg, #ff9800, #f57c00); color: white; 
+                             border: none; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3); transition: transform 0.2s;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                Vedi Dettaglio
+              </button>
+            </div>
           `;
           const detailButton = div.querySelector(`#detail-button-${markerData.id}`) as HTMLElement;
           if (detailButton) {
