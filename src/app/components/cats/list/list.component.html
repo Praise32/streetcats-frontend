@@ -6,14 +6,14 @@
 
   <app-map [markers]="catMarkers()" [center]="[40.8518, 14.2681]" [zoom]="13"></app-map>
 
-  <h3>Schede degli avvistamenti</h3>
+  <h3 class="section-title">Schede degli avvistamenti</h3>
   
   <div *ngIf="cats().length === 0 && !isLoading()" class="no-cats-message">
     Nessun avvistamento trovato.
   </div>
 
   <div class="cat-cards-list">
-    <div *ngFor="let cat of cats()" class="cat-card">
+    <a *ngFor="let cat of cats()" class="cat-card" [routerLink]="['/cats', cat.id]">
       <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.jpg'"
         alt="Immagine Gatto" 
         class="cat-card-image" 
@@ -25,9 +25,8 @@
         <p>
           <strong>Luogo:</strong> {{ cat.address }}, {{ cat.city }}
         </p>
-        <a [routerLink]="['/cats', cat.id]">Dettagli</a>
       </div>
-    </div>
+    </a>
   </div>
 
   <div class="pagination-controls" *ngIf="totalPages() > 1">

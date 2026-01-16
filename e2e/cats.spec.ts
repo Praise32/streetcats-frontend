@@ -11,8 +11,8 @@ test.describe('Streetcats E2E', () => {
     });
 
     test('2. Naviga al dettaglio di un gatto', async ({ page }) => {
-        await expect(page.locator('.cat-card')).not.toHaveCount(0);
-        await page.locator('.cat-card a:has-text("Dettagli")').first().click();
+        await expect(page.locator('a.cat-card')).not.toHaveCount(0);
+        await page.locator('a.cat-card').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
         await expect(page.getByRole('heading', { level: 2 })).toBeVisible();
     });
@@ -65,8 +65,8 @@ test.describe('Streetcats E2E', () => {
     test('7. Aggiunta commento richiede login', async ({ page }) => {
         await page.context().clearCookies();
         await page.goto('/cats');
-        await expect(page.locator('.cat-card')).not.toHaveCount(0);
-        await page.locator('.cat-card a:has-text("Dettagli")').first().click();
+        await expect(page.locator('a.cat-card')).not.toHaveCount(0);
+        await page.locator('a.cat-card').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
         await expect(page.locator('.alert-info')).toContainText('Effettua il login');
     });
@@ -78,8 +78,8 @@ test.describe('Streetcats E2E', () => {
     });
 
     test('9. Visualizza dettaglio con foto', async ({ page }) => {
-        await expect(page.locator('.cat-card')).not.toHaveCount(0);
-        await page.locator('.cat-card a:has-text("Dettagli")').first().click();
+        await expect(page.locator('a.cat-card')).not.toHaveCount(0);
+        await page.locator('a.cat-card').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
         await expect(page.locator('.cat-image-multi, .cat-image')).toBeVisible();
     });
@@ -134,7 +134,7 @@ test.describe('Streetcats E2E', () => {
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
-        await page.locator('.cat-card a:has-text("Dettagli")').first().click();
+        await page.locator('a.cat-card').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
 
         const commentText = 'Commento test ' + Date.now();
