@@ -1,19 +1,22 @@
 <div class="auth-container">
   <h2>Registrazione</h2>
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    
     <div class="form-group">
       <label for="name">Nome Utente:</label>
-      <input type="text" id="name" formControlName="name">
+      <input type="text" id="name" formControlName="name" placeholder="Es. Mario Rossi">
       <div
         *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)"
         class="error-message">
         <span *ngIf="registerForm.get('name')?.errors?.['required']">Nome utente è richiesto.</span>
+        <span *ngIf="registerForm.get('name')?.errors?.['minlength']">Il nome deve avere almeno 3 caratteri.</span>
+        <span *ngIf="registerForm.get('name')?.errors?.['pattern']">Il nome può contenere solo lettere.</span>
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email:</label>
-      <input type="email" id="email" formControlName="email">
+      <input type="email" id="email" formControlName="email" placeholder="nome@esempio.com">
       <div
         *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)"
         class="error-message">
@@ -24,30 +27,29 @@
 
     <div class="form-group">
       <label for="phone">Numero di telefono:</label>
-      <input type="text" id="phone" formControlName="phone">
+      <input type="text" id="phone" formControlName="phone" placeholder="Es. 3331234567">
       <div
         *ngIf="registerForm.get('phone')?.invalid && (registerForm.get('phone')?.dirty || registerForm.get('phone')?.touched)"
         class="error-message">
         <span *ngIf="registerForm.get('phone')?.errors?.['required']">Il numero di telefono è richiesto.</span>
+        <span *ngIf="registerForm.get('phone')?.errors?.['pattern']">Inserisci un numero valido di 10 cifre (senza spazi o trattini).</span>
       </div>
     </div>
 
     <div class="form-group">
       <label for="password">Password:</label>
-      <input type="password" id="password" formControlName="password">
+      <input type="password" id="password" formControlName="password" placeholder="Min 8 car, 1 Maiusc, 1 Num">
       <div
         *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)"
         class="error-message">
         <span *ngIf="registerForm.get('password')?.errors?.['required']">Password è richiesta.</span>
-        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">La password deve essere di almeno 6
-          caratteri.</span>
+        <span *ngIf="registerForm.get('password')?.errors?.['minlength']">La password deve essere di almeno 8 caratteri.</span>
+        <span *ngIf="registerForm.get('password')?.errors?.['pattern']">La password deve contenere almeno una maiuscola e un numero.</span>
       </div>
     </div>
 
     <button type="submit" [disabled]="!registerForm.valid">Registrati</button>
   </form>
-
-  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <p>Hai già un account? <a routerLink="/auth/login" routerLinkActive="active">Accedi qui</a></p>
 </div>

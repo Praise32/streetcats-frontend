@@ -1,5 +1,5 @@
 // src/app/cats/list/cat-list.component.ts
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component'; // Importa il MapComponent
 import { CatService } from '../../../services/cat.service';
@@ -22,7 +22,8 @@ export class CatListComponent implements OnInit {
   cats = signal<CatPost[]>([]);
   currentPage = signal(1);
   pageSize = 6;
-  totalItems = signal(0); // <-- aggiungi questo se il backend lo restituisce
+  totalItems = signal(0);
+  loadedImages = new Set<string | number>();
 
   // Calcola il numero totale di pagine
   totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize));
@@ -64,5 +65,14 @@ export class CatListComponent implements OnInit {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
     this.loadCats();
+  }
+
+
+  onImageLoad(catId: string | number) {
+    this.loadedImages.add(catId);
+  }
+
+  isLoaded(catId: string | number): boolean {
+    return this.loadedImages.has(catId);
   }
 }

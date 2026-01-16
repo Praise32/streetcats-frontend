@@ -17,14 +17,12 @@
       <div
         *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
         class="error-message">
-        <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
+        <span *ngIf="loginForm.get('password')?.errors?.['required']">La password è obbligatoria.</span>
       </div>
     </div>
 
     <button type="submit" [disabled]="!loginForm.valid">Login</button>
   </form>
-
-  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <p>Non hai un account? <a routerLink="/auth/register" routerLinkActive="active">Registrati qui</a></p>
 </div>

@@ -181,6 +181,10 @@ h2 {
   box-shadow: none;
   font-size: 1.08rem;
   color: #333;
+/* Aggiungi queste proprietà per gestire il testo lungo */
+  word-wrap: break-word;
+  overflow-wrap: break-word; /* Standard moderno consigliato */
+  word-break: break-word;    /* Per compatibilità extra con parole molto lunghe */
 }
 
 .comments-list {
