@@ -1,9 +1,8 @@
-// src/app/cats/list/cat-list.component.ts
-import { Component, computed, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MapComponent, MapMarker } from '../../../shared/map/map.component'; // Importa il MapComponent
+import { MapComponent, MapMarker } from '../../../shared/map/map.component';
 import { CatService } from '../../../services/cat.service';
-import { CatPost } from '../../../interfaces/modules';
+import { CatPost, PaginatedResponse } from '../../../interfaces/modules';
 import { RouterModule } from '@angular/router';
 import { MarkdownModule } from 'ngx-markdown';
 
@@ -14,7 +13,6 @@ import { MarkdownModule } from 'ngx-markdown';
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-
 export class CatListComponent implements OnInit {
   catMarkers = signal<MapMarker[]>([]);
   isLoading = signal(true);
@@ -25,10 +23,9 @@ export class CatListComponent implements OnInit {
   totalItems = signal(0);
   loadedImages = new Set<string | number>();
 
-  // Calcola il numero totale di pagine
   totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize));
 
-  constructor(private catService: CatService) { }
+  constructor(private readonly catService: CatService) { }
 
   ngOnInit(): void {
     this.loadCats();
@@ -39,40 +36,42 @@ export class CatListComponent implements OnInit {
     this.errorMessage.set(null);
 
     this.catService.getAllCats(this.currentPage(), this.pageSize).subscribe({
-      next: (response: any) => {
-        // Adatta questa parte in base alla risposta del backend
+      next: (response: PaginatedResponse<CatPost>) => {
         this.cats.set(response.data || []);
-        this.totalItems.set(response.total || (response.data ? response.data.length : 0));
-
+        this.totalItems.set(response.total || 0);
         this.catMarkers.set((response.data || []).map((cat: CatPost) => ({
           id: cat.id,
-          lat: parseFloat(cat.latitude || '0'),
-          lng: parseFloat(cat.longitude || '0'),
+          lat: Number.parseFloat(cat.latitude || '0'),
+          lng: Number.parseFloat(cat.longitude || '0'),
           title: cat.title,
-          description: cat.description ? cat.description.substring(0, 80) + (cat.description.length > 80 ? '...' : '') : '',
+          description: this.truncateDescription(cat.description),
           imageUrl: 'assets/MarkerCats.png',
         })));
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.message || 'Impossibile caricare gli avvistamenti dei gatti.');
+        this.errorMessage.set(err.message || 'Impossibile caricare gli avvistamenti.');
         this.isLoading.set(false);
       }
     });
   }
 
-  goToPage(page: number) {
+  goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
     this.loadCats();
   }
 
-
-  onImageLoad(catId: string | number) {
+  onImageLoad(catId: string | number): void {
     this.loadedImages.add(catId);
   }
 
   isLoaded(catId: string | number): boolean {
     return this.loadedImages.has(catId);
+  }
+
+  private truncateDescription(description: string | null): string {
+    if (!description) return '';
+    return description.length > 80 ? description.substring(0, 80) + '...' : description;
   }
 }

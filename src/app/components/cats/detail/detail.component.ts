@@ -1,16 +1,16 @@
-// src/app/cats/detail/cat-detail.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router'; // Importa ActivatedRoute e RouterLink
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CatService } from '../../../services/cat.service';
 import { CommentService } from '../../../services/comments.service';
 import { CatPost, Comment, User } from '../../../interfaces/modules';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component';
-import { MarkdownModule } from 'ngx-markdown'; // Importa MarkdownModule
-import { AuthService } from '../../../services/auth.service'; // Per controllare lo stato di login
+import { MarkdownModule } from 'ngx-markdown';
+import { AuthService } from '../../../services/auth.service';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ViewChild, ElementRef } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
+import { ToastrService } from 'ngx-toastr';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 
 
@@ -20,17 +20,18 @@ import { QuillModule } from 'ngx-quill';
   imports: [
     CommonModule,
     MapComponent,
-    MarkdownModule, // Aggiungi MarkdownModule qui
+    MarkdownModule,
     RouterLink,
     RouterLinkActive,
     ReactiveFormsModule,
-    QuillModule // Per il form dei commenti
+    QuillModule,
+    ConfirmDialogComponent
   ],
   templateUrl: './detail.component.html',
   styleUrl: './detail.component.scss'
 })
 export class CatDetailComponent implements OnInit {
-  catPost = signal<CatPost | null>(null); // Signal per il post del gatto
+  catPost = signal<CatPost | null>(null);
   isLoading = signal(true);
   errorMessage = signal<string | null>(null);
   mapMarkers = signal<MapMarker[]>([]);
@@ -40,17 +41,24 @@ export class CatDetailComponent implements OnInit {
   commentForm: FormGroup;
   isLoggedIn: any;
 
+  // Gestione dialog di conferma
+  showDeletePostDialog = false;
+  showDeleteCommentDialog = false;
+  showAddCommentDialog = false;
+  commentToDelete: Comment | null = null;
+  pendingCommentText: string | null = null;
+
   @ViewChild('commentArea') commentArea!: ElementRef<HTMLTextAreaElement>;
 
 
 
   constructor(
-    private route: ActivatedRoute,
-    private catService: CatService,
-    public authService: AuthService, // Inietta AuthService
-    private commentService: CommentService,
-    private router: Router
-
+    private readonly route: ActivatedRoute,
+    private readonly catService: CatService,
+    public authService: AuthService,
+    private readonly commentService: CommentService,
+    private readonly router: Router,
+    private readonly toastr: ToastrService
   ) {
     this.commentForm = new FormGroup({
       text: new FormControl('', Validators.required)
@@ -62,9 +70,9 @@ export class CatDetailComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.loadCatDetail(Number(id)); // Converti l'ID a numero
+        this.loadCatDetail(Number(id));
       } else {
-        this.errorMessage.set('ID del gatto non fornito.');
+        this.errorMessage.set('ID non fornito.');
         this.isLoading.set(false);
       }
     });
@@ -72,17 +80,29 @@ export class CatDetailComponent implements OnInit {
 
   get isOwner(): boolean {
     const post = this.catPost();
-    const user = this.authService.getCurrentUser?.(); // Assicurati che AuthService abbia questo metodo
+    const user = this.authService.getCurrentUser?.();
     return !!post && !!user && post.userId === user.id;
   }
 
   onDeletePost(): void {
-    if (confirm('Sei sicuro di voler eliminare questo avvistamento?')) {
-      this.catService.deleteCat(this.catPost()!.id).subscribe({
-        next: () => this.router.navigate(['/cats']),
-        error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del post.')
-      });
-    }
+    this.showDeletePostDialog = true;
+  }
+
+  confirmDeletePost(): void {
+    this.showDeletePostDialog = false;
+    this.catService.deleteCat(this.catPost()!.id).subscribe({
+      next: () => {
+        this.toastr.success('Avvistamento eliminato', 'Fatto');
+        this.router.navigate(['/cats']);
+      },
+      error: () => {
+        this.toastr.error('Impossibile eliminare', 'Errore');
+      }
+    });
+  }
+
+  cancelDeletePost(): void {
+    this.showDeletePostDialog = false;
   }
 
   private loadCatDetail(id: number): void {
@@ -90,16 +110,15 @@ export class CatDetailComponent implements OnInit {
     this.errorMessage.set(null);
     this.catService.getCatById(id).subscribe({
       next: (data: CatPost) => {
-        // Ordina i commenti per data di creazione
         if (data.comments) {
-          data.comments = data.comments.sort((a, b) =>
+          data.comments = [...data.comments].sort((a, b) =>
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           );
         }
         this.catPost.set(data);
         if (data.latitude && data.longitude) {
-          const lat = parseFloat(data.latitude);
-          const lng = parseFloat(data.longitude);
+          const lat = Number.parseFloat(data.latitude);
+          const lng = Number.parseFloat(data.longitude);
           this.mapCenter.set([lat, lng]);
           this.mapMarkers.set([
             {
@@ -115,56 +134,67 @@ export class CatDetailComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.message || 'Errore durante il caricamento dei dettagli del gatto.');
+        this.toastr.error('Impossibile caricare i dettagli', 'Errore');
+        this.errorMessage.set('Errore durante il caricamento.');
         this.isLoading.set(false);
-        console.error('Errore caricamento dettagli gatto:', err);
       }
     });
   }
 
   onCommentSubmit(): void {
     if (this.commentForm.valid && this.catPost()) {
-      const postId = this.catPost()!.id;
-      const commentText = this.commentForm.getRawValue().text;
-      console.log('Invio commento:', { postId, commentText }); // <-- DEBUG
-
-      this.commentService.addComment(postId, commentText).subscribe({
-        next: (newComment: any) => {
-          this.catPost.update(currentPost => {
-            if (currentPost) {
-              const updatedComments = currentPost.comments
-                ? [...currentPost.comments, newComment]
-                : [newComment];
-              // Ordina per data di creazione
-              updatedComments.sort((a, b) =>
-                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-              );
-              return { ...currentPost, comments: updatedComments };
-            }
-            return currentPost;
-          });
-          this.commentForm.reset(); // Resetta SOLO dopo aver inviato
-        },
-        error: (err) => {
-          this.errorMessage.set(err.message || 'Errore durante l\'aggiunta del commento.');
-          console.error('Errore aggiunta commento:', err);
-        }
-      });
+      this.pendingCommentText = this.commentForm.getRawValue().text;
+      this.showAddCommentDialog = true;
     } else {
-      this.errorMessage.set('Per favore, inserisci un commento valido.');
+      this.toastr.warning('Inserisci un commento valido', 'Attenzione');
     }
   }
 
-  // Helper per ottenere l'URL della prima foto o un placeholder
+  confirmAddComment(): void {
+    this.showAddCommentDialog = false;
+    if (!this.pendingCommentText || !this.catPost()) return;
+
+    const postId = this.catPost()!.id;
+    const commentText = this.pendingCommentText;
+
+    this.commentService.addComment(postId, commentText).subscribe({
+      next: (newComment: Comment) => {
+        this.catPost.update(currentPost => {
+          if (currentPost) {
+            const updatedComments = currentPost.comments
+              ? [...currentPost.comments, newComment]
+              : [newComment];
+            updatedComments.sort((a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+            return { ...currentPost, comments: updatedComments };
+          }
+          return currentPost;
+        });
+        this.commentForm.reset();
+        this.pendingCommentText = null;
+        this.toastr.success('Commento aggiunto!', 'Fatto');
+      },
+      error: () => {
+        this.toastr.error('Impossibile aggiungere il commento', 'Errore');
+        this.pendingCommentText = null;
+      }
+    });
+  }
+
+  cancelAddComment(): void {
+    this.showAddCommentDialog = false;
+    this.pendingCommentText = null;
+  }
+
   getCatImageUrl(): string {
     const post = this.catPost();
-    if (post && post.photos && post.photos.length > 0) {
+    if (post?.photos?.length) {
       return post.photos[0].url;
     }
-    return 'assets/placeholder-cat.jpg'; // Immagine placeholder
+    return 'assets/placeholder-cat.jpg';
   }
 
-  // Funzione per formattare la data
   formatDate(dateString: string | undefined): string {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('it-IT', {
@@ -176,7 +206,7 @@ export class CatDetailComponent implements OnInit {
     });
   }
 
-  insertMarkdown(before: string, after: string) {
+  insertMarkdown(before: string, after: string): void {
     const textarea = this.commentArea?.nativeElement;
     if (!textarea) return;
     const start = textarea.selectionStart;
@@ -186,7 +216,6 @@ export class CatDetailComponent implements OnInit {
     const newValue = value.substring(0, start) + before + selected + after + value.substring(end);
     textarea.value = newValue;
     this.commentForm.get('text')?.setValue(newValue);
-    // Riposiziona il cursore
     setTimeout(() => {
       textarea.focus();
       textarea.selectionStart = textarea.selectionEnd = start + before.length + selected.length + after.length;
@@ -195,11 +224,11 @@ export class CatDetailComponent implements OnInit {
 
   modalImageUrl: string | null = null;
 
-  openImageModal(url: string) {
+  openImageModal(url: string): void {
     this.modalImageUrl = url;
   }
 
-  closeImageModal() {
+  closeImageModal(): void {
     this.modalImageUrl = null;
   }
 
@@ -208,19 +237,17 @@ export class CatDetailComponent implements OnInit {
     text: new FormControl('', Validators.required)
   });
 
-  // Avvia la modifica
-  onEditComment(comment: Comment) {
+  onEditComment(comment: Comment): void {
     this.editingCommentId = comment.id;
     this.editCommentForm.setValue({ text: comment.text });
   }
 
-  // Salva la modifica
-  onUpdateComment(comment: Comment) {
+  onUpdateComment(comment: Comment): void {
     if (this.editCommentForm.valid) {
       const newText = this.editCommentForm.get('text')?.value;
       const commentId = Number(comment.id);
-      if (isNaN(commentId)) {
-        this.errorMessage.set('ID commento non valido.');
+      if (Number.isNaN(commentId)) {
+        this.toastr.error('ID commento non valido', 'Errore');
         return;
       }
       this.commentService.updateComment(commentId, newText).subscribe({
@@ -234,15 +261,13 @@ export class CatDetailComponent implements OnInit {
             ) || []).sort((a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
             );
-            return {
-              ...currentPost,
-              comments: updatedComments
-            };
+            return { ...currentPost, comments: updatedComments };
           });
           this.editingCommentId = null;
+          this.toastr.success('Commento modificato', 'Fatto');
         },
-        error: (err) => {
-          this.errorMessage.set(err.message || 'Errore durante la modifica del commento.');
+        error: () => {
+          this.toastr.error('Impossibile modificare il commento', 'Errore');
         }
       });
     }
@@ -253,22 +278,39 @@ export class CatDetailComponent implements OnInit {
     this.editingCommentId = null;
   }
 
+  // Apre dialog conferma eliminazione commento
   onDeleteComment(comment: Comment) {
-    if (confirm('Vuoi davvero eliminare questo commento?')) {
-      this.commentService.deleteComment(comment.id).subscribe({
-        next: () => {
-          // Aggiorna la lista dei commenti senza ricaricare la pagina
-          this.catPost.update(currentPost => {
-            if (!currentPost) return currentPost;
-            return {
-              ...currentPost,
-              comments: currentPost.comments?.filter(c => c.id !== comment.id) || []
-            };
-          });
-        },
-        error: (err) => this.errorMessage.set(err.message || 'Errore durante l\'eliminazione del commento.')
-      });
-    }
+    this.commentToDelete = comment;
+    this.showDeleteCommentDialog = true;
+  }
+
+  // Conferma eliminazione commento
+  confirmDeleteComment(): void {
+    this.showDeleteCommentDialog = false;
+    if (!this.commentToDelete) return;
+    
+    this.commentService.deleteComment(this.commentToDelete.id).subscribe({
+      next: () => {
+        this.catPost.update(currentPost => {
+          if (!currentPost) return currentPost;
+          return {
+            ...currentPost,
+            comments: currentPost.comments?.filter(c => c.id !== this.commentToDelete!.id) || []
+          };
+        });
+        this.toastr.success('Commento eliminato', 'Fatto');
+        this.commentToDelete = null;
+      },
+      error: () => {
+        this.toastr.error('Impossibile eliminare il commento', 'Errore');
+        this.commentToDelete = null;
+      }
+    });
+  }
+
+  cancelDeleteComment(): void {
+    this.showDeleteCommentDialog = false;
+    this.commentToDelete = null;
   }
 
   get currentUser(): User | null {

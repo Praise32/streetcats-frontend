@@ -5,11 +5,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CatService } from '../../../services/cat.service';
 import { MapComponent } from '../../../shared/map/map.component';
 import { CatPost, CatPostInsertData } from '../../../interfaces/modules';
-import { MarkdownModule } from 'ngx-markdown'; // Per un'anteprima Markdown (se vuoi)
+import { MarkdownModule } from 'ngx-markdown';
 import { Observable } from 'rxjs';
 import { QuillModule } from 'ngx-quill';
-import { GeocodingService } from '../../../services/revgeocoding.service'; // Se hai un servizio per la geocodifica
+import { GeocodingService } from '../../../services/revgeocoding.service';
 import { HttpClient } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
+import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
 
 
 @Component({
@@ -20,7 +22,8 @@ import { HttpClient } from '@angular/common/http';
     ReactiveFormsModule,
     MapComponent,
     MarkdownModule,
-    QuillModule
+    QuillModule,
+    ConfirmDialogComponent
   ],
   templateUrl: './form.component.html',
   styleUrl: './form.component.scss'
@@ -36,18 +39,22 @@ export class CatFormComponent implements OnInit {
   addressSuggestions: any[] = [];
   existingPhotos: { id: number, url: string, filename: string }[] = [];
 
+  // Gestione dialog conferma
+  showDeletePhotoDialog = false;
+  photoToDeleteId: number | null = null;
+  showSubmitDialog = false;
+  pendingCatData: CatPostInsertData | null = null;
 
-
-  // Signal per le coordinate selezionate sulla mappa
   selectedCoords = signal<{ lat: number, lng: number } | null>(null);
   fileNames: any;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private catService: CatService,
-    private geocodingService: GeocodingService, // Se hai un servizio per la geocodifica
-    private http: HttpClient
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly catService: CatService,
+    private readonly geocodingService: GeocodingService,
+    private readonly http: HttpClient,
+    private readonly toastr: ToastrService
   ) {
     this.catForm = new FormGroup({
       title: new FormControl('', Validators.required),
@@ -66,7 +73,7 @@ export class CatFormComponent implements OnInit {
       if (id) {
         this.isEditMode.set(true);
         this.catIdToEdit = Number(id);
-        this.loadCatForEdit(this.catIdToEdit!);
+        this.loadCatForEdit(this.catIdToEdit);
       }
     });
   }
@@ -87,8 +94,8 @@ export class CatFormComponent implements OnInit {
         // Imposta le coordinate selezionate per visualizzarle sulla mappa
         if (cat.latitude && cat.longitude) {
           this.selectedCoords.set({
-            lat: parseFloat(cat.latitude),
-            lng: parseFloat(cat.longitude)
+            lat: Number.parseFloat(cat.latitude),
+            lng: Number.parseFloat(cat.longitude)
           });
         }
         // Salva le foto già caricate
@@ -100,23 +107,41 @@ export class CatFormComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.message || 'Errore durante il caricamento del gatto per la modifica.');
+        const msg = 'Impossibile caricare i dati. Riprova.';
+        this.errorMessage.set(msg);
+        this.toastr.error(msg, 'Errore di caricamento');
         this.isLoading.set(false);
       }
     });
   }
 
-  // Metodo per eliminare una foto già caricata
+  // Apre dialog conferma eliminazione foto
   removeExistingPhoto(photoId: number) {
-    if (!confirm('Vuoi davvero eliminare questa foto?')) return;
-    this.catService.deletePhoto(photoId).subscribe({
+    this.photoToDeleteId = photoId;
+    this.showDeletePhotoDialog = true;
+  }
+
+  // Conferma eliminazione foto
+  confirmDeletePhoto(): void {
+    this.showDeletePhotoDialog = false;
+    if (!this.photoToDeleteId) return;
+
+    this.catService.deletePhoto(this.photoToDeleteId).subscribe({
       next: () => {
-        this.existingPhotos = this.existingPhotos.filter(p => p.id !== photoId);
+        this.existingPhotos = this.existingPhotos.filter(p => p.id !== this.photoToDeleteId);
+        this.toastr.success('Foto eliminata con successo', 'Fatto');
+        this.photoToDeleteId = null;
       },
-      error: (err) => {
-        this.errorMessage.set(err.message || 'Errore durante l\'eliminazione della foto.');
+      error: () => {
+        this.toastr.error('Impossibile eliminare la foto', 'Errore');
+        this.photoToDeleteId = null;
       }
     });
+  }
+
+  cancelDeletePhoto(): void {
+    this.showDeletePhotoDialog = false;
+    this.photoToDeleteId = null;
   }
 
   onFileSelected(event: Event): void {
@@ -183,17 +208,16 @@ export class CatFormComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage.set(null);
     if (!this.catForm.valid) {
-      this.errorMessage.set('Per favore, compila tutti i campi richiesti.');
+      this.toastr.warning('Compila tutti i campi richiesti', 'Attenzione');
+      this.catForm.markAllAsTouched();
       return;
     }
     if (!this.selectedCoords() && !this.isEditMode()) {
-      this.errorMessage.set('Per favore, seleziona una posizione sulla mappa.');
+      this.toastr.warning('Seleziona una posizione sulla mappa', 'Attenzione');
       return;
     }
 
-    this.isLoading.set(true);
-
-    const catData: CatPostInsertData = {
+    this.pendingCatData = {
       title: this.catForm.get('title')!.value,
       description: this.catForm.get('description')!.value,
       address: this.catForm.get('address')!.value,
@@ -202,6 +226,15 @@ export class CatFormComponent implements OnInit {
       latitude: this.catForm.get('latitude')!.value,
       longitude: this.catForm.get('longitude')!.value,
     };
+    this.showSubmitDialog = true;
+  }
+
+  confirmSubmit(): void {
+    this.showSubmitDialog = false;
+    if (!this.pendingCatData) return;
+
+    this.isLoading.set(true);
+    const catData = this.pendingCatData;
 
     let operation$: Observable<CatPost>;
 
@@ -213,32 +246,40 @@ export class CatFormComponent implements OnInit {
 
     operation$.subscribe({
       next: (responseCat) => {
-        // Se ci sono file selezionati, carica tutte le foto
+        const successMsg = this.isEditMode() ? 'Avvistamento modificato!' : 'Avvistamento creato!';
         if (this.selectedFiles().length > 0) {
           const formData = new FormData();
           this.selectedFiles().forEach(file => {
-            formData.append('imageFiles', file); // 'imageFiles' deve essere un array nel backend
+            formData.append('imageFiles', file);
           });
           this.catService.uploadPhotos(responseCat.id, formData).subscribe({
-            next: (photoResponse) => {
+            next: () => {
+              this.toastr.success(successMsg, 'Successo');
               this.router.navigate(['/cats', responseCat.id]);
               this.isLoading.set(false);
             },
-            error: (err) => {
-              this.errorMessage.set(err.message || 'Gatto salvato, ma errore durante il caricamento delle foto.');
+            error: () => {
+              this.toastr.warning('Post salvato, ma errore nel caricamento foto', 'Attenzione');
+              this.router.navigate(['/cats', responseCat.id]);
               this.isLoading.set(false);
             }
           });
         } else {
+          this.toastr.success(successMsg, 'Successo');
           this.router.navigate(['/cats', responseCat.id]);
           this.isLoading.set(false);
         }
       },
-      error: (err) => {
-        this.errorMessage.set(err.message || 'Errore durante il salvataggio del gatto.');
+      error: () => {
+        this.toastr.error('Impossibile salvare l\'avvistamento. Riprova.', 'Errore');
         this.isLoading.set(false);
       }
     });
+  }
+
+  cancelSubmit(): void {
+    this.showSubmitDialog = false;
+    this.pendingCatData = null;
   }
 
   get selectedFileNames(): string {
@@ -283,8 +324,8 @@ export class CatFormComponent implements OnInit {
       this.http.get<any[]>(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`)
         .subscribe(results => {
           if (results && results.length > 0) {
-            const lat = parseFloat(results[0].lat);
-            const lng = parseFloat(results[0].lon);
+            const lat = Number.parseFloat(results[0].lat);
+            const lng = Number.parseFloat(results[0].lon);
             this.selectedCoords.set({ lat, lng });
             this.catForm.patchValue({ latitude: lat.toString(), longitude: lng.toString() });
           }

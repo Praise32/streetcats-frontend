@@ -39,7 +39,7 @@
     </div>
 
     <div class="form-group" *ngIf="existingPhotos.length > 0">
-      <label>Foto già caricate:</label>
+      <span class="field-label">Foto già caricate:</span>
       <div class="image-preview-list">
         <div class="image-preview-item" *ngFor="let photo of existingPhotos">
           <img [src]="photo.url" alt="Foto già caricata" class="image-preview-thumb">
@@ -56,7 +56,7 @@
     </div>
 
     <div class="form-group">
-      <label>Dati posizione (compilati automaticamente):</label>
+      <span class="field-label">Dati posizione (compilati automaticamente):</span>
       <div class="form-group">
         <label for="address">Via/Indirizzo:</label>
         <input type="text" id="address" formControlName="address" (change)="onAddressFieldsChange()" />
@@ -74,7 +74,7 @@
       </div>
     </div>
     <div class="form-group map-picker">
-      <label>Seleziona Posizione sulla Mappa:</label>
+      <span class="field-label">Seleziona Posizione sulla Mappa:</span>
       <div class="coords-display" *ngIf="selectedCoords()">
         Latitudine: {{ selectedCoords()!.lat | number:'1.5-5' }}, Longitudine: {{ selectedCoords()!.lng |
         number:'1.5-5' }}
@@ -100,3 +100,25 @@
     </button>
   </form>
 </div>
+
+<!-- Dialog conferma eliminazione foto -->
+<app-confirm-dialog
+  [isOpen]="showDeletePhotoDialog"
+  title="Elimina Foto"
+  message="Sei sicuro di voler eliminare questa foto?"
+  confirmText="Elimina"
+  type="danger"
+  (confirmed)="confirmDeletePhoto()"
+  (cancelled)="cancelDeletePhoto()">
+</app-confirm-dialog>
+
+<!-- Dialog conferma creazione/modifica post -->
+<app-confirm-dialog
+  [isOpen]="showSubmitDialog"
+  [title]="isEditMode() ? 'Conferma Modifica' : 'Conferma Creazione'"
+  [message]="isEditMode() ? 'Vuoi salvare le modifiche a questo avvistamento?' : 'Vuoi pubblicare questo nuovo avvistamento?'"
+  [confirmText]="isEditMode() ? 'Salva' : 'Pubblica'"
+  type="info"
+  (confirmed)="confirmSubmit()"
+  (cancelled)="cancelSubmit()">
+</app-confirm-dialog>

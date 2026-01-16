@@ -1,0 +1,21 @@
+@if (isOpen) {
+  <div class="overlay" (click)="onCancel()" (keydown.escape)="onCancel()">
+    <dialog class="dialog" open (click)="$event.stopPropagation()" (keydown.escape)="onCancel()">
+      <div class="dialog-header">
+        <span class="icon" [ngClass]="type" aria-hidden="true">
+          @if (type === 'danger') { ⚠️ }
+          @else if (type === 'warning') { ❓ }
+          @else { ℹ️ }
+        </span>
+        <h3 id="dialog-title">{{ title }}</h3>
+      </div>
+      <p class="message">{{ message }}</p>
+      <div class="actions">
+        <button class="btn-cancel" type="button" (click)="onCancel()">Annulla</button>
+        <button class="btn-confirm" type="button" [ngClass]="type" (click)="onConfirm()">
+          {{ confirmText }}
+        </button>
+      </div>
+    </dialog>
+  </div>
+}

@@ -13,6 +13,13 @@ h2 {
     margin-bottom: 1.5rem;
 }
 
+.field-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
 .quill-custom {
     .ql-toolbar {
         border-radius: 6px 6px 0 0;
@@ -161,7 +168,7 @@ input[type="file"] {
 }
 
 button[type="submit"] {
-    background: #ff9800;
+    background: #c43e00;
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -175,12 +182,12 @@ button[type="submit"] {
 }
 
 button[type="submit"]:disabled {
-    background: #ccc;
+    background: #999;
     cursor: not-allowed;
 }
 
 button[type="submit"]:hover:not(:disabled) {
-    background: #e65100;
+    background: #9a3000;
 }
 
 .markdown-preview {
@@ -214,12 +221,10 @@ button[type="submit"]:hover:not(:disabled) {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-}
 
-.field-label {
-    color: #ff9800;
-    font-weight: 600;
-    margin-right: 0.5em;
+    .field-label {
+        color: #e65100;
+    }
 }
 
 .field-value {

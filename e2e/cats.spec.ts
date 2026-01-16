@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Streetcats E2E', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:4200/');
+        await page.goto('/');
     });
 
     test('1. Visualizza lista avvistamenti', async ({ page }) => {
@@ -22,60 +22,52 @@ test.describe('Streetcats E2E', () => {
     });
 
     test('4. Login fallisce con credenziali errate', async ({ page }) => {
-        await page.goto('http://localhost:4200/auth/login');
+        await page.goto('/auth/login');
         await page.fill('input[type="text"]', 'wrong@email.com');
         await page.fill('input[type="password"]', 'wrongpasssdas');
-        await page.waitForSelector('button[type="submit"]:not([disabled])')
+        await page.waitForSelector('button[type="submit"]:not([disabled])');
         await page.click('button[type="submit"]');
-        await expect(page.locator('.alert-danger')).toBeVisible();
+        await expect(page.locator('.toast-error, .alert-danger')).toBeVisible({ timeout: 5000 });
     });
 
     test('5. Registrazione con email già usata mostra errore', async ({ page }) => {
-        await page.goto('http://localhost:4200/auth/register');
+        await page.goto('/auth/register');
         await page.fill('input#name', 'Test');
         await page.fill('input#email', 'test@email.com');
         await page.fill('input#phone', '1234567890');
         await page.fill('input#password', 'password');
         await page.waitForSelector('button[type="submit"]:not([disabled])');
         await page.click('button[type="submit"]');
-        await expect(page.locator('.alert-danger')).toBeVisible();
+        await expect(page.locator('.toast-error, .alert-danger')).toBeVisible({ timeout: 5000 });
     });
 
     test('6. Form nuovo avvistamento richiede titolo', async ({ page }) => {
-        // Esegui login
-        await page.goto('http://localhost:4200/auth/login');
-        await page.fill('input[type="text"]', 'Mariano'); // usa una mail valida
-        await page.fill('input[type="password"]', '123'); // usa la password corretta
+        await page.goto('/auth/login');
+        await page.fill('input[type="text"]', 'Mariano');
+        await page.fill('input[type="password"]', '123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
-        await page.goto('http://localhost:4200/cats/new');
+        await page.goto('/cats/new');
         await page.waitForSelector('input#address', { timeout: 10000 });
 
-        // Compila tutti i campi obbligatori tranne il titolo
         await page.fill('input#address', 'Via Roma');
         await page.fill('input#city', 'Napoli');
         await page.fill('input#cap', '80100');
 
-        // Tocca il campo titolo e poi un altro campo per attivare la validazione
         await page.click('input#title');
         await page.click('input#address');
 
-        // Verifica che venga mostrato il messaggio di errore sotto il campo titolo
         await expect(page.locator('.error-message')).toContainText('Il titolo è obbligatorio.');
-
-        // Il bottone deve restare disabilitato
         await expect(page.locator('button[type="submit"]')).toBeDisabled();
     });
 
     test('7. Aggiunta commento richiede login', async ({ page }) => {
         await page.context().clearCookies();
-        await page.goto('http://localhost:4200/cats');
+        await page.goto('/cats');
         await expect(page.locator('.cat-card')).not.toHaveCount(0);
-        // Naviga al dettaglio del primo gatto
         await page.locator('.cat-card a:has-text("Dettagli")').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
-        // Ora verifica il messaggio di login
         await expect(page.locator('.alert-info')).toContainText('Effettua il login');
     });
 
@@ -89,19 +81,17 @@ test.describe('Streetcats E2E', () => {
         await expect(page.locator('.cat-card')).not.toHaveCount(0);
         await page.locator('.cat-card a:has-text("Dettagli")').first().click();
         await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
-        await expect(page.locator('.cat-image-multi')).toBeVisible();
+        await expect(page.locator('.cat-image-multi, .cat-image')).toBeVisible();
     });
 
     test('10. Ricerca indirizzo nella form', async ({ page }) => {
-        // Esegui login
-        await page.goto('http://localhost:4200/auth/login');
-        await page.fill('input[type="text"]', 'Mariano'); // usa una mail valida
-        await page.fill('input[type="password"]', '123'); // usa la password corretta
+        await page.goto('/auth/login');
+        await page.fill('input[type="text"]', 'Mariano');
+        await page.fill('input[type="password"]', '123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
-
-        await page.goto('http://localhost:4200/cats/new');
+        await page.goto('/cats/new');
         await page.waitForSelector('input#address', { timeout: 10000 });
         await page.fill('input#address', 'Via Toledo');
         await page.fill('input#city', 'Napoli');
@@ -110,35 +100,51 @@ test.describe('Streetcats E2E', () => {
     });
 
     test('11. Un utente autenticato può creare un nuovo avvistamento', async ({ page }) => {
-        // Login
-        await page.goto('http://localhost:4200/auth/login');
-        await page.fill('input[type="text"]', 'Mariano'); // usa una mail valida
-        await page.fill('input[type="password"]', '123'); // usa la password corretta
+        await page.goto('/auth/login');
+        await page.fill('input[type="text"]', 'Mariano');
+        await page.fill('input[type="password"]', '123');
         await page.click('button[type="submit"]');
         await page.waitForURL('**/cats');
 
-        // Vai al form nuovo avvistamento
-        await page.goto('http://localhost:4200/cats/new');
+        await page.goto('/cats/new');
         await page.waitForSelector('input#title', { timeout: 10000 });
 
-        // Compila tutti i campi obbligatori
         const titolo = 'Test Playwright ' + Date.now();
         await page.fill('input#title', titolo);
-        // Descrizione con Quill
         await page.locator('.ql-editor').first().fill('Gatto avvistato vicino al parco.');
         await page.fill('input#address', 'Via Test');
         await page.fill('input#city', 'Napoli');
         await page.fill('input#cap', '80100');
 
-        // Simula la selezione della posizione sulla mappa se necessario (opzionale)
-        // await page.click('app-map'); // oppure simula le coordinate
-
-        // Invia il form
         await page.waitForSelector('button[type="submit"]:not([disabled])');
         await page.click('button[type="submit"]');
 
-        // Verifica di essere stato reindirizzato al dettaglio del nuovo avvistamento
-        await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
+        // Gestisce il confirmation dialog
+        await page.waitForSelector('app-confirm-dialog dialog.dialog', { timeout: 5000 });
+        await page.click('app-confirm-dialog .btn-confirm');
+
+        await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 15000 });
         await expect(page.getByRole('heading', { level: 2 })).toContainText(titolo);
+    });
+
+    test('12. Un utente autenticato può aggiungere un commento', async ({ page }) => {
+        await page.goto('/auth/login');
+        await page.fill('input[type="text"]', 'Mariano');
+        await page.fill('input[type="password"]', '123');
+        await page.click('button[type="submit"]');
+        await page.waitForURL('**/cats');
+
+        await page.locator('.cat-card a:has-text("Dettagli")').first().click();
+        await expect(page).toHaveURL(/\/cats\/\d+/, { timeout: 10000 });
+
+        const commentText = 'Commento test ' + Date.now();
+        await page.locator('.ql-editor').first().fill(commentText);
+        await page.click('button:has-text("Aggiungi Commento")');
+
+        // Gestisce il confirmation dialog
+        await page.waitForSelector('app-confirm-dialog dialog.dialog', { timeout: 5000 });
+        await page.click('app-confirm-dialog .btn-confirm');
+
+        await expect(page.locator('.toast-success')).toBeVisible({ timeout: 5000 });
     });
 });

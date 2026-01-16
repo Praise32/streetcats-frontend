@@ -1,59 +1,97 @@
-# StreetcatsFrontend
+# 🐱 StreetCats Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.13.
+Un'applicazione web per segnalare e visualizzare avvistamenti di gatti randagi. Costruita con Angular 20, permette agli utenti di registrarsi, pubblicare avvistamenti con foto e posizione su mappa, e interagire tramite commenti.
 
-## Development server
+## ✨ Funzionalità
 
-To start a local development server, run:
+- **Autenticazione**: Login e registrazione utenti
+- **Avvistamenti**: Crea, modifica ed elimina segnalazioni di gatti
+- **Foto Multiple**: Carica fino a 5 foto per avvistamento con anteprima
+- **Geolocalizzazione**: Mappa interattiva con Leaflet per selezionare la posizione
+- **Commenti**: Sistema di commenti con editor ricco (Quill)
+- **Notifiche Toast**: Feedback visivo per tutte le azioni
+- **Dialog di Conferma**: Conferma per azioni distruttive e creative
+- **Responsive Design**: Ottimizzato per desktop e mobile
+
+## 🛠 Tecnologie
+
+- **Framework**: Angular 20 con Standalone Components
+- **Mappe**: Leaflet
+- **Editor Testo**: ngx-quill
+- **Notifiche**: ngx-toastr
+- **Markdown**: ngx-markdown
+- **Testing E2E**: Playwright
+- **Styling**: SCSS
+
+## 🚀 Avvio Rapido
+
+### Prerequisiti
+
+- Node.js 20+
+- npm 10+
+
+### Installazione
 
 ```bash
+# Installa le dipendenze
+npm install
+
+# Avvia il server di sviluppo
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+L'applicazione sarà disponibile su `http://localhost:4200`
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 📦 Build
 
 ```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
+# Build di produzione
 ng build
+
+# I file compilati saranno in dist/streetcats-frontend
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🧪 Testing
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Unit Tests
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### E2E Tests con Playwright
 
 ```bash
-ng e2e
+# Esegui tutti i test E2E
+npx playwright test
+
+# Esegui con UI
+npx playwright test --ui
+
+# Report HTML
+npx playwright show-report
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 📁 Struttura Progetto
 
-## Additional Resources
+```
+src/app/
+├── components/
+│   ├── auth/           # Login e Registrazione
+│   ├── cats/           # Lista, Dettaglio, Form
+│   └── header/         # Navigazione
+├── guards/             # Route guards
+├── interceptors/       # HTTP interceptors
+├── interfaces/         # TypeScript interfaces
+├── services/           # API services
+└── shared/             # Componenti riutilizzabili
+    └── confirm-dialog/ # Dialog di conferma
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🔧 Configurazione
+
+L'applicazione si connette a un backend API. Configura l'URL del backend nei servizi se necessario.
+
+## 📄 Licenza
+
+MIT

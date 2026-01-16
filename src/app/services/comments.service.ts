@@ -1,19 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Comment } from '../interfaces/modules';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CommentService {
-  private baseUrl = 'http://localhost:5003/comments';
+  private readonly baseUrl = 'http://localhost:5003/comments';
 
   constructor(private http: HttpClient) { }
 
   addComment(postId: number, text: string): Observable<Comment> {
-    // Il tuo backend aggiungerà userId in base al token JWT
-    return this.http.post<Comment>(`${this.baseUrl}`, { text, postId }).pipe(
+    return this.http.post<Comment>(this.baseUrl, { text, postId }).pipe(
+      catchError(this.handleError)
     );
   }
 
@@ -29,20 +27,15 @@ export class CommentService {
     );
   }
 
-
-  private handleError(error: any): Observable<never> {
-    let errorMessage = 'An unknown error occurred with cat data!';
-    if (error.error && error.error.message) {
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Errore durante l operazione';
+    if (error.error?.message) {
       errorMessage = error.error.message;
-    } else if (error.message) {
-      errorMessage = error.message;
     } else if (error.status === 401 || error.status === 403) {
-      errorMessage = 'Unauthorized or forbidden. Please log in.';
+      errorMessage = 'Non autorizzato.';
     } else if (error.status === 404) {
-      errorMessage = 'Resource not found.';
+      errorMessage = 'Commento non trovato.';
     }
-    console.error('Cat Service error:', error);
     return throwError(() => new Error(errorMessage));
   }
-
 }

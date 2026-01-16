@@ -14,16 +14,17 @@
       <div class="image-wrapper" *ngIf="catPost() as post">
         <ng-container *ngIf="!!post.photos && post.photos.length > 0; else noPhoto">
           <ng-container *ngFor="let photo of post.photos | slice : 0 : 5">
-            <img [src]="photo.url" alt="Foto gatto" class="cat-image-multi" (click)="openImageModal(photo.url)"
-              style="cursor: zoom-in" />
+            <button type="button" class="image-button" (click)="openImageModal(photo.url)">
+              <img [src]="photo.url" alt="Foto gatto" class="cat-image-multi" />
+            </button>
           </ng-container>
         </ng-container>
       </div>
       <!-- Modal per fullscreen -->
-      <div class="image-modal" *ngIf="modalImageUrl" (click)="closeImageModal()">
+      <dialog class="image-modal" [open]="modalImageUrl" (click)="closeImageModal()" (keydown.escape)="closeImageModal()">
         <img [src]="modalImageUrl" alt="Foto ingrandita" />
-        <span class="close-modal">&times;</span>
-      </div>
+        <button type="button" class="close-modal" (click)="closeImageModal()" aria-label="Chiudi">&times;</button>
+      </dialog>
       <ng-template #noPhoto>
         <div class="image-wrapper">
           <img src="assets/placeholder-cat.jpg" alt="Nessuna foto" class="cat-image-multi" />
@@ -142,3 +143,36 @@
     </div>
   </div>
 </div>
+
+<!-- Dialog conferma eliminazione post -->
+<app-confirm-dialog
+  [isOpen]="showDeletePostDialog"
+  title="Elimina Avvistamento"
+  message="Sei sicuro di voler eliminare questo avvistamento? L'azione non è reversibile."
+  confirmText="Elimina"
+  type="danger"
+  (confirmed)="confirmDeletePost()"
+  (cancelled)="cancelDeletePost()">
+</app-confirm-dialog>
+
+<!-- Dialog conferma eliminazione commento -->
+<app-confirm-dialog
+  [isOpen]="showDeleteCommentDialog"
+  title="Elimina Commento"
+  message="Sei sicuro di voler eliminare questo commento?"
+  confirmText="Elimina"
+  type="danger"
+  (confirmed)="confirmDeleteComment()"
+  (cancelled)="cancelDeleteComment()">
+</app-confirm-dialog>
+
+<!-- Dialog conferma invio commento -->
+<app-confirm-dialog
+  [isOpen]="showAddCommentDialog"
+  title="Pubblica Commento"
+  message="Vuoi pubblicare questo commento?"
+  confirmText="Pubblica"
+  type="info"
+  (confirmed)="confirmAddComment()"
+  (cancelled)="cancelAddComment()">
+</app-confirm-dialog>

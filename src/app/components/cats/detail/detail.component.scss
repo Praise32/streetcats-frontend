@@ -4,12 +4,12 @@
   padding: 2rem;
   background: #fff;
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   text-align: center;
-  color: #ff9800;
+  color: #e65100;
   margin-bottom: 1.5rem;
 }
 
@@ -19,12 +19,6 @@ h2 {
   border-bottom: 1px solid #eee;
 }
 
-/* detail.component.scss */
-
-// Per garantire la massima specificità possibile senza !important,
-// puoi prependere il selettore del componente padre, se applicabile.
-// Ad esempio, .cat-detail-container o .add-comment-section
-
 .add-comment-section {
   margin-top: 2rem;
   background: #fafafa;
@@ -32,14 +26,8 @@ h2 {
   padding: 1.2rem;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
 
-
-  // Questo è il div che contiene il form del commento
   ::ng-deep {
-
-    // Importante per sovrascrivere gli stili interni di Quill
     .quill-custom {
-
-      // Selettore della tua classe personalizzata
       .ql-toolbar {
         border-radius: 6px 6px 0 0;
         background: #f5f5f5;
@@ -53,28 +41,44 @@ h2 {
         border: 1px solid #ddd;
         font-size: 1rem;
         background: #fafafa;
-
-        // **NUOVA STRATEGIA QUI:**
-        // Imposta una 'height' fissa che includa sia la toolbar che l'editor.
-        // Questo è più simile a come il tuo '[styles]' in HTML sta funzionando.
-        // Se vuoi che sia espandibile, allora i min-height del form sono migliori.
-        // Proviamo prima con un'altezza fissa, dato che il tuo '[styles]' funzionava.
         height: 180px;
-        /* Altezza totale desiderata per l'area di input del commento */
-
-        // Se preferisci che sia espandibile ma con un minimo, usa:
-        // min-height: 140px; // come nel form component
-        // E assicurati che ql-editor abbia un min-height adeguato.
       }
 
       .ql-editor {
-        // L'altezza dell'editor sarà (height di ql-container) - (altezza toolbar + padding/border)
-        // Se .ql-container ha height: 180px, e la toolbar è circa 40px, allora l'editor può essere ~140px.
-        // Quill gestisce il proprio scroll se il contenuto supera l'altezza disponibile.
-        min-height: 140px; // Assicurati che l'area di testo sia visibilmente grande.
+        min-height: 140px;
         padding: 0.7rem;
-        overflow-y: auto; // Cruciale per lo scroll
+        overflow-y: auto;
       }
+    }
+  }
+
+  textarea {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    resize: vertical;
+  }
+
+  button {
+    background: #c43e00;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background: #9a3000;
     }
   }
 }
@@ -87,31 +91,50 @@ h2 {
   box-sizing: border-box;
 }
 
-
 .cat-image-multi {
   width: 100%;
   max-width: 350px;
-  height: auto;
-  object-fit: contain;
+  height: 250px;
+  object-fit: cover;
   border-radius: 12px;
   margin: 0 14px 14px 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
-  background: #eee;
-  transition: transform 0.18s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  transition: transform 0.18s, opacity 0.3s ease-in-out;
   border: 2px solid #fff;
+  cursor: zoom-in;
+
+  &:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.13);
+  }
 }
 
-.cat-image-multi:hover {
-  transform: scale(1.04);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.13);
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .image-wrapper {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   margin-bottom: 1.2rem;
-  gap: 8px;
+  gap: 12px;
+}
+
+.image-button {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
 }
 
 .owner-actions {
@@ -133,21 +156,21 @@ h2 {
 }
 
 .edit-btn {
-  background: #ff9800;
+  background: #c43e00;
   color: #fff;
-}
 
-.edit-btn:hover {
-  background: #e65100;
+  &:hover {
+    background: #9a3000;
+  }
 }
 
 .delete-btn {
-  background: #d32f2f;
+  background: #c62828;
   color: #fff;
-}
 
-.delete-btn:hover {
-  background: #b71c1c;
+  &:hover {
+    background: #8e0000;
+  }
 }
 
 .map-detail {
@@ -164,13 +187,13 @@ h2 {
   padding: 1.5rem 2rem;
   margin: 2.2rem 0 2.5rem 0;
   border: 1px solid #eee;
-}
 
-.description-wrapper h4 {
-  margin-top: 0;
-  color: #ff9800;
-  font-size: 1.18rem;
-  font-weight: 600;
+  h4 {
+    margin-top: 0;
+    color: #e65100;
+    font-size: 1.18rem;
+    font-weight: 600;
+  }
 }
 
 .markdown-content {
@@ -181,10 +204,9 @@ h2 {
   box-shadow: none;
   font-size: 1.08rem;
   color: #333;
-/* Aggiungi queste proprietà per gestire il testo lungo */
   word-wrap: break-word;
-  overflow-wrap: break-word; /* Standard moderno consigliato */
-  word-break: break-word;    /* Per compatibilità extra con parole molto lunghe */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .comments-list {
@@ -200,7 +222,7 @@ h2 {
 }
 
 .comment-author {
-  color: #ff9800;
+  color: #e65100;
   font-weight: 500;
   margin-bottom: 0.2rem;
 }
@@ -209,115 +231,19 @@ h2 {
   color: #333;
   margin-bottom: 0.2rem;
   word-break: break-word;
-  /* Quill content style */
   font-size: 1rem;
   line-height: 1.5;
 }
 
 .comment-date {
-  color: #888;
+  color: #666;
   font-size: 0.92rem;
-}
+  margin-bottom: 0.2rem;
 
-.add-comment-section textarea {
-  width: 100%;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  padding: 0.7rem;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  resize: vertical;
-}
-
-.add-comment-section button {
-  background: #ff9800;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem 1.2rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.add-comment-section button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.add-comment-section button:hover:not(:disabled) {
-  background: #e65100;
-}
-
-.error-message {
-  color: #d32f2f;
-  font-size: 0.95rem;
-  margin-top: 0.2rem;
-}
-
-.alert {
-  margin: 1rem auto;
-  max-width: 400px;
-  text-align: center;
-}
-
-.image-modal {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(30, 30, 30, 0.92);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: zoom-out;
-  animation: fadeInModal 0.2s;
-}
-
-.image-modal img {
-  max-width: 92vw;
-  max-height: 92vh;
-  border-radius: 12px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
-  background: #fff;
-}
-
-.close-modal {
-  position: fixed;
-  top: 32px;
-  right: 48px;
-  font-size: 3rem;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
-  z-index: 10000;
-  text-shadow: 0 2px 8px #000;
-}
-
-.alert.alert-info {
-  margin: 2rem auto 0 auto;
-  max-width: 600px;
-  background: #fffbe7;
-  color: #b26a00;
-  border: 1px solid #ffe0b2;
-  border-radius: 8px;
-  padding: 1.1rem 1.5rem;
-  font-size: 1.08rem;
-  text-align: center;
-  box-shadow: 0 1px 8px rgba(255, 152, 0, 0.07);
-
-  a {
-    color: #ff9800;
-    font-weight: 600;
-    text-decoration: underline;
-    transition: color 0.18s;
-
-    &:hover {
-      color: #e65100;
-    }
+  span {
+    color: #1565c0;
+    font-style: italic;
+    margin-left: 0.5em;
   }
 }
 
@@ -339,48 +265,113 @@ h2 {
 }
 
 .edit-comment-btn {
-  background: #ff9800;
+  background: #c43e00;
   color: #fff;
-}
 
-.edit-comment-btn:hover {
-  background: #e65100;
-}
-
-.delete-comment-btn {
-  background: #d32f2f;
-  color: #fff;
-}
-
-.delete-comment-btn:hover {
-  background: #b71c1c;
-}
-
-
-.comment-date {
-  color: #888;
-  font-size: 0.92rem;
-  margin-bottom: 0.2rem;
-
-  span {
-    color: #1976d2;
-    font-style: italic;
-    margin-left: 0.5em;
+  &:hover {
+    background: #9a3000;
   }
 }
 
+.delete-comment-btn {
+  background: #c62828;
+  color: #fff;
 
+  &:hover {
+    background: #8e0000;
+  }
+}
+
+.error-message {
+  color: #c62828;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+}
+
+.alert {
+  margin: 1rem auto;
+  max-width: 400px;
+  text-align: center;
+}
+
+.alert.alert-info {
+  margin: 2rem auto 0 auto;
+  max-width: 600px;
+  background: #fffbe7;
+  color: #6d4c00;
+  border: 1px solid #ffe0b2;
+  border-radius: 8px;
+  padding: 1.1rem 1.5rem;
+  font-size: 1.08rem;
+  text-align: center;
+  box-shadow: 0 1px 8px rgba(255, 152, 0, 0.07);
+
+  a {
+    color: #c43e00;
+    font-weight: 600;
+    text-decoration: underline;
+    transition: color 0.18s;
+
+    &:hover {
+      color: #9a3000;
+    }
+  }
+}
+
+.image-modal {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 30, 30, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: fadeInModal 0.2s;
+
+  img {
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: 12px;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.25);
+    background: #fff;
+  }
+}
+
+.close-modal {
+  position: fixed;
+  top: 32px;
+  right: 48px;
+  font-size: 2.5rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10000;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
 
 @keyframes fadeInModal {
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
 }
-
 
 @media (max-width: 900px) {
   .cat-detail-container {
