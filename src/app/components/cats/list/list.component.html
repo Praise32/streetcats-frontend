@@ -14,9 +14,10 @@
 
   <div class="cat-cards-list">
     <a *ngFor="let cat of cats()" class="cat-card" [routerLink]="['/cats', cat.id]">
-      <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : 'assets/placeholder-cat.jpg'"
+      <img [src]="cat.photos && cat.photos.length > 0 ? cat.photos[0].url : '/assets/placeholder-cat.jpg'"
         alt="Immagine Gatto" 
         class="cat-card-image" 
+        loading="lazy"
         (load)="onImageLoad(cat.id)"
         [class.loaded]="isLoaded(cat.id)">
 

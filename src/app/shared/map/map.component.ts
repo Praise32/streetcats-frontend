@@ -116,8 +116,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.leafletMap.removeLayer(this.selectedMarkerLayer);
     }
     const customIcon = L.icon({
-      iconUrl: 'assets/MarkerCats.png',
-      shadowUrl: 'assets/marker-shadow.png',
+      iconUrl: '/assets/MarkerCats.png',
+      shadowUrl: '/assets/marker-shadow.png',
       iconSize: [72, 72],
       iconAnchor: [36, 72],
       popupAnchor: [0, -72],
@@ -140,8 +140,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     this.markers().forEach(markerData => {
       const customIcon = L.icon({
-        iconUrl: markerData.imageUrl || 'assets/MarkerCats.png',
-        shadowUrl: 'assets/marker-shadow.png',
+        iconUrl: markerData.imageUrl || '/assets/MarkerCats.png',
+        shadowUrl: '/assets/marker-shadow.png',
         iconSize: [72, 72],
         iconAnchor: [36, 72],
         popupAnchor: [0, -72],

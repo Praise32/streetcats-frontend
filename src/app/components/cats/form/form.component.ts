@@ -144,7 +144,58 @@ export class CatFormComponent implements OnInit {
     this.photoToDeleteId = null;
   }
 
-  onFileSelected(event: Event): void {
+  // Comprime un'immagine usando Canvas API (nativa del browser)
+  private compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
+    return new Promise((resolve) => {
+      // Se il file è già piccolo (< 500KB), non comprimere
+      if (file.size < 500 * 1024) {
+        resolve(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+
+          // Ridimensiona se più grande di maxWidth
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                // Crea un nuovo File con il blob compresso
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file); // Fallback al file originale
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files).filter(file => file.type.startsWith('image/'));
@@ -158,38 +209,46 @@ export class CatFormComponent implements OnInit {
           `Puoi aggiungere al massimo ${maxAllowed} foto. Hai già ${this.existingPhotos.length} foto caricate.`,
           'Limite foto raggiunto'
         );
-        // Prendi solo le foto consentite
         const allowedFiles = files.slice(0, maxAllowed);
-        this.selectedFiles.set(allowedFiles);
         
-        // Genera le anteprime solo per i file consentiti
+        // Comprimi le immagini
+        const compressedFiles = await Promise.all(
+          allowedFiles.map(file => this.compressImage(file))
+        );
+        this.selectedFiles.set(compressedFiles);
+        
+        // Genera le anteprime
         const previews: string[] = [];
-        allowedFiles.forEach(file => {
+        compressedFiles.forEach(file => {
           const reader = new FileReader();
           reader.onload = (e: any) => {
             previews.push(e.target.result);
-            if (previews.length === allowedFiles.length) {
+            if (previews.length === compressedFiles.length) {
               this.imagePreviews.set(previews);
             }
           };
           reader.readAsDataURL(file);
         });
         
-        if (allowedFiles.length === 0) {
+        if (compressedFiles.length === 0) {
           this.imagePreviews.set([]);
         }
         return;
       }
       
-      this.selectedFiles.set(files);
+      // Comprimi le immagini
+      const compressedFiles = await Promise.all(
+        files.map(file => this.compressImage(file))
+      );
+      this.selectedFiles.set(compressedFiles);
 
       // Genera le anteprime
       const previews: string[] = [];
-      files.forEach(file => {
+      compressedFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
           previews.push(e.target.result);
-          if (previews.length === files.length) {
+          if (previews.length === compressedFiles.length) {
             this.imagePreviews.set(previews);
           }
         };

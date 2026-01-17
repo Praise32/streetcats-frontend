@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MapComponent, MapMarker } from '../../../shared/map/map.component';
 import { CatService } from '../../../services/cat.service';
 import { CatPost, PaginatedResponse } from '../../../interfaces/modules';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
@@ -25,10 +25,20 @@ export class CatListComponent implements OnInit {
 
   totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize));
 
-  constructor(private readonly catService: CatService) { }
+  constructor(
+    private readonly catService: CatService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.loadCats();
+    // Leggi la pagina corrente dai query params
+    this.route.queryParams.subscribe(params => {
+      const page = Number(params['page']) || 1;
+      this.currentPage.set(page);
+      this.loadedImages.clear();
+      this.loadCats();
+    });
   }
 
   private loadCats(): void {
@@ -45,7 +55,7 @@ export class CatListComponent implements OnInit {
           lng: Number.parseFloat(cat.longitude || '0'),
           title: cat.title,
           description: this.truncateDescription(cat.description),
-          imageUrl: 'assets/MarkerCats.png',
+          imageUrl: '/assets/MarkerCats.png',
         })));
         this.isLoading.set(false);
       },
@@ -58,8 +68,12 @@ export class CatListComponent implements OnInit {
 
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
-    this.currentPage.set(page);
-    this.loadCats();
+    // Aggiorna l'URL con il query param, questo triggera il subscribe in ngOnInit
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onImageLoad(catId: string | number): void {

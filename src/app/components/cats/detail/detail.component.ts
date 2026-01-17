@@ -197,7 +197,7 @@ export class CatDetailComponent implements OnInit {
     if (post?.photos?.length) {
       return post.photos[0].url;
     }
-    return 'assets/placeholder-cat.jpg';
+    return '/assets/placeholder-cat.jpg';
   }
 
   formatDate(dateString: string | undefined): string {
